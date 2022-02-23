@@ -1,5 +1,5 @@
 # Eclectic-Token-Sniper
-Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. At the moment it only offers full support for the BSC (although some functionalities could work on other chains)
+Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. At the moment it only offers full support for the BSC (although some functionalities could work on other chains), but work is in progress to support other EVM compatible chains. Stay tunned!
 
 ## Main features
 
