@@ -4,7 +4,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 ## Main features
 
 - Multiple methods for sniping tokens:
-	- From a list of token Ids to watch
+	- From a list of token addresses to watch
 	- From PairCreated events
 	- From AddLiquidityETH transactions
 	- From Telegram channels
@@ -60,7 +60,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. At the moment only BNB is supported, but support for more will be added.
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled.
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds).
-  - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit.
+  - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit. You should set *AuditTokens* and *HoneypotCheckEnabled* for this method to work.
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe.
   - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for new tokens to snipe. This method is not recommended unless you set limit buys to the white list, or you'll end buying lots of old tokens.
   - MempoolSniper: Ignore for now, this is still work in progress.
