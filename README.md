@@ -1,5 +1,5 @@
 # Eclectic-Token-Sniper
-Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. At the moment it only offers full support for the BSC (although some functionalities could work on other chains), but work is in progress to support other EVM compatible chains. Stay tunned!
+Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. At the moment it only offers full support for the BSC and PancakeSwap (although some functionalities could work on other chains or DEXs), but work is in progress to support other EVM compatible chains. Stay tunned!
 
 ## Main features
 
@@ -66,9 +66,9 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds)
 ### Disable/enable Snipers
-  - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit. You should set *AuditTokens* and *HoneypotCheckEnabled* for this method to work
+  - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
-  - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for new tokens to snipe. This method is not recommended unless you set limit buys to the white list, or you'll end buying lots of old tokens
+  - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for new tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
   - MempoolSniper: Ignore for now, this is still work in progress
   - TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
 ### Gas settings
