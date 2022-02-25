@@ -63,7 +63,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - PancakeswapRouterAddress: Same, but the Router contract address
   - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. At the moment only BNB is supported, but support for more will be added
 ### Global settings
-- TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
+  - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds)
 ### Disable/enable Snipers
   - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit. You should set *AuditTokens* and *HoneypotCheckEnabled* for this method to work
