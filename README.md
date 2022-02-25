@@ -68,7 +68,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 ### Disable/enable Snipers
   - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
-  - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for new tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
+  - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens. In fact, unless you have a very particular use case for this, I don't recommend this method at all
   - MempoolSniper: Ignore for now, this is still work in progress
   - TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
 ### Gas settings
