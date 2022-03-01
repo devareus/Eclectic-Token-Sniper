@@ -44,7 +44,7 @@ The Honeypot Check functionality is available for the Binance Smart Chain (mainn
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
 Telegram channel at [http://t.me/EclecticTokenSniper](http://t.me/EclecticTokenSniper).
  
-A 7.5% developer fee is paid on all profits above 0.01 BNB.
+A 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc)
 
 If you want to support further development of this sniper you can send a donation on Ethereum or BSC to: 
 
@@ -168,4 +168,5 @@ You can ignore the sections below, they're used to configure the log files
 - Wallet mirroring
 - Checking the mempool for the removal of liquidity of tokens hold to try to frontrun the operation and sell them before it's processed by the blockchain
 - Explore arbitrage strategies (possibly using flash loans, etc)
+- Graphical User Interface
 - Open to suggestions
