@@ -98,7 +98,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - SellGasAmount: Maximum gas amount for sell transactions
   - EstimateGasOnBuy: If enabled, an estimation of gas is done before submitting buy transactions and checked against the maximum amount above. This has the advantage of not wasting gas in aborted transactions if these are going to fail due to being out-of-gas, but the disadvantage of making the snip operation slower. You can leave it off if using the HoneypotCheck functionality, as the gas limits are already checked by it
   - EstimateGasOnSell: Similar to the above, but for sell transactions
-  - 
+   
 ### Taxes
   - MaxBuyTax: Used for the token audits. Maximum Buy Tax for sniping a token
   - MaxSellTax: Similarly, maximum Sell Tax for sniping a token
