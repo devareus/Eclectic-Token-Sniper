@@ -1,5 +1,22 @@
 # Eclectic-Token-Sniper
-Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. At the moment it only offers full support for the BSC and PancakeSwap (although some functionalities could work on other chains or DEXs), but work is in progress to support other EVM compatible chains. Stay tunned!
+Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. It should work with any decentralized exchange compatible with the Uniswap V2 API on any blockchain compatible with Ethereum. For example, just to mention a few:
+
+#### Chains
+- Ethereum
+- BNB Chain (former Binance Smart Chain)
+- Avalanche C-Chain
+- Polygon
+- Fantom Opera
+
+#### DEXs
+- UniswapV2
+- SushiSwap
+- PancakeSwap
+- ApeSwap
+- Biswap
+- BakerySwap
+
+The Honeypot Check functionality is available for the Binance Smart Chain (mainnet and testnet) and Polygon. I can add support for others on request. Get in touch!
 
 ## Main features
 
@@ -44,6 +61,8 @@ Double click on the executable, or better, open a terminal/console and run it fr
 
 You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved each time a token is bought, sold or the trailing stops are changed, so if you launch it again from the same folder, it will carry on monitoring them.
 
+If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
+
 ## appsettings.json
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
@@ -54,14 +73,13 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - BscScanApiKey: If you want to check if a token's contract is verified, you'll need to get an API key from BSCScan and put it here
 
 ### Node
-  - ChainId: The blockchain Id. 56 for the BSC
   - NodeAddressHttp: The RPC endpoint of the blockchain node that you'll connect to. You can use one of the official nodes, get a node from moralis.io or deploy your own node
   - NodeAddressWss: For some snipping options you'll also need a websocket node endpoint. You can use the nariox node, get one from moralis.io or use your own one
   - GetContractSourceUrl: The URL for downloading the tokens' contracts' source codes. Don't change it unless you know what you're doing
 ### DEX
-  - PancakeswapFactoryAddress: Pancake Swap's Factory contract address. Don't change it unless you know what you're doing. In principle other DEXs should work too (except for the honeypot checker; I'll eventually add support for others to it)
-  - PancakeswapRouterAddress: Same, but the Router contract address
-  - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. At the moment only BNB is supported, but support for more will be added
+  - ExchangeRouterAddress: The contract address for the exchange's router. For example, for PancakeSwap it's "0x10ed43c718714eb63d5aa57b78b54704e256024e"
+  - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. If empty ("") the native token of the blockchain (BNB, for example) will be used directly to buy the tokens (if there's enough liquidity in the pair). It it's set to the contract address of token, the native token will be swapped for this intermediary token before buying the snipped token. For example, if set to "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56" on the BSC (BUSD), the *AmountToSnipe* amount of BNB will be converted to BUSD and these used to buy the sniped token.
+  
 ### Global settings
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds)
@@ -78,6 +96,9 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - BuyGasAmount: Maximum gas amount for buy transactions
   - ApproveGasAmount: Maximum gas amount for approval transactions
   - SellGasAmount: Maximum gas amount for sell transactions
+  - EstimateGasOnBuy: If enabled, an estimation of gas is done before submitting buy transactions and checked against the maximum amount above. This has the advantage of not wasting gas in aborted transactions if these are going to fail due to being out-of-gas, but the disadvantage of making the snip operation slower. You can leave it off if using the HoneypotCheck functionality, as the gas limits are already checked by it
+  - EstimateGasOnSell: Similar to the above, but for sell transactions
+  - 
 ### Taxes
   - MaxBuyTax: Used for the token audits. Maximum Buy Tax for sniping a token
   - MaxSellTax: Similarly, maximum Sell Tax for sniping a token
@@ -88,12 +109,12 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 ### Buy settings
 -    BuyEnabled: Enables or disables the buy of tokens. This can be toggled while running by pressing the B key, but it will revert back to the default configured here if the sniper is restarted
 -    MinWalletBalance: Minimum balance in your account for buying tokens. The sniper won't buy any more tokens if your balance is below this figure. If the balance increases (for example, you send more funds, or a token is sold) it will start buying again. I recommend to set this to slightly more than the *AmountToSnipe*, to guarantee that some funds are left to pay for the networks fees when selling.
--    AmountToSnipe: The default amount to buy of each snipped token (in BNB) 
--    MinLiquidityAmount: Minimum liquidity in BNB in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
+-    AmountToSnipe: The default amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC) 
+-    MinLiquidityAmount: Minimum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately:
-		-    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
-		-    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions above
+	-    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
+	-    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions above
         -    HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes and gas, using the limits set above
 -    OnlyBuyWhitelisted: Will only buy tokens included in the white list
 -    BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable
