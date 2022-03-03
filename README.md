@@ -3,7 +3,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 
 #### Chains
 - Ethereum
-- BNB Chain (former Binance Smart Chain)
+- BNB Smart Chain (former Binance Smart Chain)
 - Avalanche C-Chain
 - Polygon
 - Fantom Opera
