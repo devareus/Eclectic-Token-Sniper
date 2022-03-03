@@ -20,6 +20,7 @@ The Honeypot Check functionality is available for the Binance Smart Chain (mainn
 
 ## Main features
 
+- Support for multiple chains, decentralised exchanges and liquidity pairs
 - Multiple methods for sniping tokens:
 	- From a list of token addresses to watch
 	- From PairCreated events
@@ -38,6 +39,7 @@ The Honeypot Check functionality is available for the Binance Smart Chain (mainn
 	- Setting a trailing stop
 	- Disabling the sell of a token for a certain time after being bought
 	- Selling a token after a certain amount of time
+	- Mempool monitoring to frontrun RemoveLiquidity transactions
 
 ***
 
@@ -132,6 +134,12 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 -    DontSellBeforeMinutes: Prevents selling a token, even if  stop loss or take profit limits are touched for the first few minutes after buying a token. This can be used to prevent being taken out of the market by the initial volatility after a token is launched. Use at your own risk!
 -    ForceSellAfterTime: Sells tokens after the amount of minutes indicated in the setting just below, no matter if any of the conditions above is fulfilled or not
 -    ForceSellAfterMinutes: Amount of minutes as explained above
+-    WaitForApproval: If enabled, wait for the confirmation of the approval transaction before sending the sell transaction
+-    MempoolRemoveLiquidityEmergencySell": If enabled, the mempool is monitored for RemoveLiquidity transactions of the owned tokens. If one is detected the bot will try to frontrun the removal transaction to sell the tokens before the liquidity is gone. Mind that any RemoveLiquidity of the token will trigger this, even if it's only partial, so false positives are possible
+-    EmergencySellGasPriceInc": Increment of gas price for emergency approvals and sells, in relation to the gas price of the RemoveLiquidity transaction that triggered them. Should be at least 1 to have any chances of frontrunning it
+-    EmergencySellMaxGasPrice": Maximum gas price for emergency approvals and sells. This is a safe net in case a RemoveLiquidity had a crazy gas price
+-    EmergencySellSlippage": Maximum slippage for emergency sells
+
 ### Watched tokens
 -    WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
 -    WatchedTokens: List of token addresses to watch for sniping, if this sniping method is enabled
