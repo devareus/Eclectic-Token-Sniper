@@ -70,7 +70,6 @@ If you want to run the sniper on different chains, exchanges or LiquidityPairAdd
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
 ### Accounts
-  - WalletAddress: Your account address
   - WalletPrivateKey: Your account private key. It's a string of numbers and letters that you can export, from example, from your Metamask. *It's not the list of recovery words that gives access to all the accounts in your Metamask, but a separate key for each account in your wallet*. It's recommended to use a separate account so the sniper doesn't interfere with your normal activity or is affected by it. Don't hold in this account more funds than you need
   - BscScanApiKey: If you want to check if a token's contract is verified, you'll need to get an API key from BSCScan and put it here
 
@@ -85,8 +84,9 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 ### Global settings
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds)
+  - WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
 ### Disable/enable Snipers
-  - WatchedTokensSniper: If enabled, the sniper will audit once and again the tokens in the *WatchedTokens* list and will try to buy it once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses
+  - WatchedTokensSniper: Enables or disables the watch list. See section below
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
   - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
   - MempoolSniper: Ignore for now, this is still work in progress
@@ -140,9 +140,6 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 -    EmergencySellMaxGasPrice: Maximum gas price for emergency approvals and sells. This is a safe net in case a RemoveLiquidity had a crazy gas price
 -    EmergencySellSlippage: Maximum slippage for emergency sells
 
-### Watched tokens
--    WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
--    WatchedTokens: List of token addresses to watch for sniping, if this sniping method is enabled
 ### White/Black Listing
 -    WhitelistedTokens: This list of token addresses can have two different but similar usages. If *OnlyBuyWhitelisted* is enabled, only the tokens in this list can be bought. If it's disabled, it skips any audits for these tokens (use with care!)
 -    BlacklistedTokens: A list of token addresses to never buy
@@ -162,6 +159,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
 		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
 		- AmountToSnipe: Telegram sniping doesn't use the default *AmountToSnipe*. You must set a separate amount here for each rule. This can be used, for example, to buy lower or higher amounts of tokens depending on your trust on the source
+		- AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading
 
 ### Additional Settings
 - CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
@@ -169,6 +167,18 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 - DeadWallets: List of dead wallets used for the calculation of the percentage of the total supply as liquidity. It's recommended not to touch this
 
 You can ignore the sections below, they're used to configure the log files
+
+## Watch List
+Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again the tokens in the *watched-tokens.json* file and will try to buy them once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses.
+
+The list of watched tokens is stored in a file named *watched-tokens.json* (you can find a template in the release files). Multiple entries are supported, with each one having the following attributes:
+	- Address: The contract address of the token to watch and snipe
+	- AmountToSnipe: Amount of the base token of the chain (BNB, MATIC, etc) to buy
+	- StartCheckingAt (optional): Only start checking this token after this date and time
+	- StopCheckingAt (optional): Stop checking this token after the indicated date and time
+	- Source (internal use, ignore): Used internally when a token has been added by the Telegram Sniper to keep track of the rule that added it
+	
+The tokens will be automatically removed from the list by the sniper when they're bought (or a buy failed).
 
 ## Plans for the next releases
 - Mempool snipping
