@@ -172,11 +172,12 @@ You can ignore the sections below, they're used to configure the log files
 Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again the tokens in the *watched-tokens.json* file and will try to buy them once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses.
 
 The list of watched tokens is stored in a file named *watched-tokens.json* (you can find a template in the release files). Multiple entries are supported, with each one having the following attributes:
-	- Address: The contract address of the token to watch and snipe
-	- AmountToSnipe: Amount of the base token of the chain (BNB, MATIC, etc) to buy
-	- StartCheckingAt (optional): Only start checking this token after this date and time
-	- StopCheckingAt (optional): Stop checking this token after the indicated date and time
-	- Source (internal use, ignore): Used internally when a token has been added by the Telegram Sniper to keep track of the rule that added it
+
+  - Address: The contract address of the token to watch and snipe
+  - AmountToSnipe: Amount of the base token of the chain (BNB, MATIC, etc) to buy
+  - StartCheckingAt (optional): Only start checking this token after this date and time
+  - StopCheckingAt (optional): Stop checking this token after the indicated date and time
+  - Source (internal use, ignore): Used internally when a token has been added by the Telegram Sniper to keep track of the rule that added it
 	
 The tokens will be automatically removed from the list by the sniper when they're bought (or a buy failed).
 
