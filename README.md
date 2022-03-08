@@ -129,8 +129,8 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 -    TrailingStopStrategy: Can be 0 or 1. If 0, the *TrailingStop* and *TrailingStopThreshold* will be used for the trailing stop as percentages in relation to the buy price. If 1, *TrailingStop1* and *TrailingStopThreshold1* will be used instead, as percentages in relation to the current price
 -    TrailingStop: Distance at which the stop loss will be set, as a percentage in relation to the buy price
 -    TrailingStopThreshold: How much the price has to increase above the previous stop loss for this to change, as a percentage of the buy price
--    TrailingStop1: Distance at which the stop loss will be set, as a percentage in relation to current price
--    TrailingStopThreshold1: How much the price has to increase above the previous stop loss for this to change, as a percentage of the current price
+-    TrailingStop1: Distance at which the stop loss will be set, as a percentage in relation to current profit
+-    TrailingStopThreshold1: How much the price has to increase above the previous stop loss for this to change, as a percentage of the current profit
 -    DontSellBeforeMinutes: Prevents selling a token, even if  stop loss or take profit limits are touched for the first few minutes after buying a token. This can be used to prevent being taken out of the market by the initial volatility after a token is launched. Use at your own risk!
 -    ForceSellAfterTime: Sells tokens after the amount of minutes indicated in the setting just below, no matter if any of the conditions above is fulfilled or not
 -    ForceSellAfterMinutes: Amount of minutes as explained above
