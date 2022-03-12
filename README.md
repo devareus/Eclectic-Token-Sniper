@@ -126,7 +126,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 		- ChannelName: The name of the channel to listen to for this rule. You must already be a member of the channel
 		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
 		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
-		- ParametersSet: The set of parameters for this rule. See the [Parameters Sets](#parameters-sets) section below
+		- ParametersSet: The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified
 		- AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading
 		- StopWatchListCheckingAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet
 
@@ -169,9 +169,10 @@ The available settings are:
 -    BuyEnabled: Enables or disables the buy of tokens for the sniper, rule or watched token using this set
 -    AmountToSnipe: The default amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC) 
 -    AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately:
+    
         -    HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes and gas, using the limits set above
-	-    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
-	-    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions below
+        -    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
+        -    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions below
 -    MinLiquidityAmount: Minimum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable
@@ -202,7 +203,7 @@ Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again 
 The list of watched tokens is stored in a file named *watched-tokens.json* (you can find a template in the release files). Multiple entries are supported, with each one having the following attributes:
 
   - Address: The contract address of the token to watch and snipe
-  - ParametersSet: The set of parameters for this rule. See the [Parameters Sets](#parameters-sets) section above
+  - ParametersSet (optional): The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified
   - StartCheckingAt (optional): Only start checking this token after this date and time
   - RemoveAfter (optional): Stop checking and remove this token from the list automatically after the indicated date and time
   - Source (internal use, ignore): Used internally when a token has been added by the Telegram Sniper to keep track of the rule that added it
