@@ -137,7 +137,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 You can ignore the sections below, they're used to configure the log files
 
-## Parameters Sets {#parameters-sets}
+## Parameters Sets
 
 This section allows you to define sets of parameters to be used for the different snipers, watched tokens or Telegram rules. At the very least there needs to be a *"default"* set (it needs to be literally named *"default"*), which will be used by the snipers unless another set is specified. All the parameters need to be set for the default one. The other sets can consist of just a few settings if so desired, in which case the *"default"* values will be used for those missing.
 
