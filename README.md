@@ -65,7 +65,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json
+## appsettings.json (v220312)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -77,6 +77,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - NodeAddressHttp: The RPC endpoint of the blockchain node that you'll connect to. You can use one of the official nodes, get a node from moralis.io or deploy your own node
   - NodeAddressWss: For some snipping options you'll also need a websocket node endpoint. You can use the nariox node, get one from moralis.io or use your own one
   - GetContractSourceUrl: The URL for downloading the tokens' contracts' source codes. Don't change it unless you know what you're doing
+
 ### DEX
   - ExchangeRouterAddress: The contract address for the exchange's router. For example, for PancakeSwap it's "0x10ed43c718714eb63d5aa57b78b54704e256024e"
   - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. If empty ("") the native token of the blockchain (BNB, for example) will be used directly to buy the tokens (if there's enough liquidity in the pair). It it's set to the contract address of token, the native token will be swapped for this intermediary token before buying the snipped token. For example, if set to "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56" on the BSC (BUSD), the *AmountToSnipe* amount of BNB will be converted to BUSD and these used to buy the sniped token.
@@ -85,12 +86,63 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds)
   - WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
+
 ### Disable/enable Snipers
   - WatchedTokensSniper: Enables or disables the watch list. See section below
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
   - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
   - MempoolSniper: Ignore for now, this is still work in progress
   - TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
+   
+### Buy settings
+-    BuyEnabled: Lets you disable the buy of tokens globally. This can be toggled while running by pressing the B key, but it will revert back to the default configured here if the sniper is restarted
+-    MinWalletBalance: Minimum balance in your account for buying tokens. The sniper won't buy any more tokens if your balance is below this figure. If the balance increases (for example, you send more funds, or a token is sold) it will start buying again. I recommend to set this to slightly more than the *AmountToSnipe*, to guarantee that some funds are left to pay for the networks fees when selling.
+-    OnlyBuyWhitelisted: Will only buy tokens included in the white list
+
+### Sell settings
+-    SellEnabled: Lets you disable the sell the tokens globally. This can be toggled while running by pressing the S key, but it will revert back to the default configured here if the sniper is restarted
+-    WaitForApproval: If enabled, wait for the confirmation of the approval transaction before sending the sell transaction
+-    MempoolRemoveLiquidityEmergencySell: If enabled, the mempool is monitored for RemoveLiquidity transactions of the owned tokens. If one is detected the bot will try to frontrun the removal transaction to sell the tokens before the liquidity is gone. Mind that any RemoveLiquidity of the token will trigger this, even if it's only partial, so false positives are possible
+-    EmergencySellGasPriceInc: Increment of gas price for emergency approvals and sells, in relation to the gas price of the RemoveLiquidity transaction that triggered them. Should be at least 1 to have any chances of frontrunning it
+-    EmergencySellMaxGasPrice: Maximum gas price for emergency approvals and sells. This is a safe net in case a RemoveLiquidity had a crazy gas price
+-    EmergencySellSlippage: Maximum slippage for emergency sells
+
+### White/Black Listing
+-    WhitelistedTokens: This list of token addresses can have two different but similar usages. If *OnlyBuyWhitelisted* is enabled, only the tokens in this list can be bought. If it's disabled, it skips any audits for these tokens (use with care!)
+-    BlacklistedTokens: A list of token addresses to never buy
+-    BlacklistedTokenSymbols: Tokens whose symbols contain these strings won't be bought. This can be use to filter out tokens with symbols that contain, for example, "doge", "elon", "musk", "shiba", etc, as these are usually scams, or "test" which usually are... well... that... tests :)
+-    BlacklistedTokenNames: Same as above, but for the token names
+-    ContractRedFlagStrings: If contract verification is enabled, this is the list of expressions that prevent buying a token if any of them is present in its source code
+
+### Telegram Sniper
+-    TelegramApiId: Telegram Account Id for the Telegram sniping method
+-    TelegramApiHash: Telegram Account Hash for the Telegram sniping method
+-    TelegramApiPhoneNo: Telegram Phone Number for the Telegram sniping method
+
+*To obtain your Telegram API credentials follow the instructions here: [https://core.telegram.org/api/obtaining_api_id](https://core.telegram.org/api/obtaining_api_id). **Use at your own risk as whether Telegram allows this kind of use is a bit of a grey area and they could ban you forever from their service***
+
+ -   TelegramListenerConfigurations: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
+		- RuleName: A name for this rule, for your reference
+		- ChannelName: The name of the channel to listen to for this rule. You must already be a member of the channel
+		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
+		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
+		- ParametersSet: The set of parameters for this rule. See the [Parameters Section](#parameters-sets) section below
+		- AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading
+		- StopWatchListCheckingAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet
+
+### Additional Settings
+- CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
+- BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
+- DeadWallets: List of dead wallets used for the calculation of the percentage of the total supply as liquidity. It's recommended not to touch this
+
+You can ignore the sections below, they're used to configure the log files
+
+## Parameters Sets {#parameters-sets}
+
+This section allows you to define sets of parameters to be used for the different snipers, watched tokens or Telegram rules. At the very least there needs to be a *"default"* set (it needs to be literally named *"default"*), which will be used by the snipers unless another set is specified. All the parameters need to be set for the default one. The other sets can consist of just a few settings if so desired, in which case the *"default"* values will be used for those missing.
+
+The available settings are:
+
 ### Gas settings
   - BuyGasPrice: Gas price of buy transactions
   - ApproveGasPrice: Gas price for approval transactions
@@ -109,64 +161,35 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 **Mind that the tokens owners can change the taxes at any time! That a token passes an audit is not guarantee that you'll be able to sell the token later or you won't be charged higher taxes. And obviously, it doesn't guarantee that the owner won't do a rug pull and remove all the liquidity from the DEX at any some point**
 
 ### Buy settings
--    BuyEnabled: Enables or disables the buy of tokens. This can be toggled while running by pressing the B key, but it will revert back to the default configured here if the sniper is restarted
--    MinWalletBalance: Minimum balance in your account for buying tokens. The sniper won't buy any more tokens if your balance is below this figure. If the balance increases (for example, you send more funds, or a token is sold) it will start buying again. I recommend to set this to slightly more than the *AmountToSnipe*, to guarantee that some funds are left to pay for the networks fees when selling.
+-    BuyEnabled: Enables or disables the buy of tokens for the sniper, rule or watched token using this set
 -    AmountToSnipe: The default amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC) 
+-    AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately:
+        -    HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes and gas, using the limits set above
+	-    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
+	-    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions below
 -    MinLiquidityAmount: Minimum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
--    AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately:
-	-    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
-	-    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions above
-        -    HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes and gas, using the limits set above
--    OnlyBuyWhitelisted: Will only buy tokens included in the white list
 -    BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable
+-    
 ### Sell settings
--    SellEnabled: Enables or disables selling the tokens previously bought. This can be toggled while running by pressing the S key, but it will revert back to the default configured here if the sniper is restarted
--    SellSlippage: Maximum slippage set during selling
+
+-    SellEnabled: Enables or disables selling the tokens
 -    TakeProfit: Sells a token if the current profit is above this figure. It's indicated as a percentage above the buy price, for example, 50 means "sell when the profit is above 50%", that is, the current price is about 150% of the buy price
--    StopLoss: Sets a stop loss. A token will be sold if its price goes below this percentage in relation to the buy price. For example, -25 means "sell when the prices has lost a 25% of its value"
--    EnableTrailingStop: Enables or disables the trailing stop. If the price of a token increases above a threshold, the stop loss will be adjusted at a certain distance from the current price
--    TrailingStopStrategy: Can be 0 or 1. If 0, the *TrailingStop* and *TrailingStopThreshold* will be used for the trailing stop as percentages in relation to the buy price. If 1, *TrailingStop1* and *TrailingStopThreshold1* will be used instead, as percentages in relation to the current price
--    TrailingStop: Distance at which the stop loss will be set, as a percentage in relation to the buy price
--    TrailingStopThreshold: How much the price has to increase above the previous stop loss for this to change, as a percentage of the buy price
--    TrailingStop1: Distance at which the stop loss will be set, as a percentage in relation to current profit
--    TrailingStopThreshold1: How much the price has to increase above the previous stop loss for this to change, as a percentage of the current profit
--    DontSellBeforeMinutes: Prevents selling a token, even if  stop loss or take profit limits are touched for the first few minutes after buying a token. This can be used to prevent being taken out of the market by the initial volatility after a token is launched. Use at your own risk!
+-    StopLoss: Sets a stop loss. A token will be sold if its price goes below this percentage in relation to the buy price. For example, -25 means "sell when the price has gone down by a 25%"
+-    TrailingStopStrategy: If enabled and the price of a token increases above a threshold, the stop loss will be adjusted at a certain distance from the current price. It can be set to:
+	- none: To disable it
+	- buy: the threshold and distance will be calculated as a percentage of the buy price
+	- current: the thresholds and distance will be calculated as a percentage of the current price
+	- profit: the thresholds and distance will be calculated as a percentage of the current profit
+-    TrailingStopActivationThreshold: How much the price has to increase above the buy price for the stop loss to be changed
+-    TrailingStopThreshold: How much the price has to increase above the previous stop loss for this to be changed
+-    TrailingStopDistance: Distance at which the new stop loss will be set
+-    SellSlippage: Maximum slippage set during selling
+-    DontSellBeforeMinutes: Prevents selling a token, even if the stop loss is touched, for the first few minutes after buying a token. The trailing stop (if enabled) won't be active during this time either. This can be used to prevent being taken out of the market by the initial volatility after a token is launched. Use at your own risk!
 -    ForceSellAfterTime: Sells tokens after the amount of minutes indicated in the setting just below, no matter if any of the conditions above is fulfilled or not
 -    ForceSellAfterMinutes: Amount of minutes as explained above
--    WaitForApproval: If enabled, wait for the confirmation of the approval transaction before sending the sell transaction
--    MempoolRemoveLiquidityEmergencySell: If enabled, the mempool is monitored for RemoveLiquidity transactions of the owned tokens. If one is detected the bot will try to frontrun the removal transaction to sell the tokens before the liquidity is gone. Mind that any RemoveLiquidity of the token will trigger this, even if it's only partial, so false positives are possible
--    EmergencySellGasPriceInc: Increment of gas price for emergency approvals and sells, in relation to the gas price of the RemoveLiquidity transaction that triggered them. Should be at least 1 to have any chances of frontrunning it
--    EmergencySellMaxGasPrice: Maximum gas price for emergency approvals and sells. This is a safe net in case a RemoveLiquidity had a crazy gas price
--    EmergencySellSlippage: Maximum slippage for emergency sells
 
-### White/Black Listing
--    WhitelistedTokens: This list of token addresses can have two different but similar usages. If *OnlyBuyWhitelisted* is enabled, only the tokens in this list can be bought. If it's disabled, it skips any audits for these tokens (use with care!)
--    BlacklistedTokens: A list of token addresses to never buy
--    BlacklistedTokenSymbols: Tokens whose symbols contain these strings won't be bought. This can be use to filter out tokens with symbols that contain, for example, "doge", "elon", "musk", "shiba", etc, as these are usually scams, or "test" which usually are... well... that... tests :)
--    BlacklistedTokenNames: Same as above, but for the token names
--    ContractRedFlagStrings: If contract verification is enabled, this is the list of expressions that prevent buying a token if any of them is present in its source code
-### Telegram Sniper
--    TelegramApiId: Telegram Account Id for the Telegram sniping method
--    TelegramApiHash: Telegram Account Hash for the Telegram sniping method
--    TelegramApiPhoneNo: Telegram Phone Number for the Telegram sniping method
-
-*To obtain your Telegram API credentials follow the instructions here: [https://core.telegram.org/api/obtaining_api_id](https://core.telegram.org/api/obtaining_api_id). **Use at your own risk as whether Telegram allows this kind of use is a bit of a grey area and they could ban you forever from their service***
-
- -   TelegramListenerConfigurations: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
-		- RuleName: A name for this rule, for your reference
-		- ChannelName: The name of the channel to listen to for this rule. You must already be a member of the channel
-		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
-		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
-		- AmountToSnipe: Telegram sniping doesn't use the default *AmountToSnipe*. You must set a separate amount here for each rule. This can be used, for example, to buy lower or higher amounts of tokens depending on your trust on the source
-		- AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading
-
-### Additional Settings
-- CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
-- BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
-- DeadWallets: List of dead wallets used for the calculation of the percentage of the total supply as liquidity. It's recommended not to touch this
-
-You can ignore the sections below, they're used to configure the log files
+**Each bought token remembers the name of the set used when it was bought, even after restarting the bot; be careful if you change the sell settings of a set for which there are still bought tokens being monitored as this will affect them. If you don't want to affect the sell parameters of already owned tokens, create and use a new set for new buys**
 
 ## Watch List
 Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again the tokens in the *watched-tokens.json* file and will try to buy them once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses.
@@ -174,9 +197,9 @@ Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again 
 The list of watched tokens is stored in a file named *watched-tokens.json* (you can find a template in the release files). Multiple entries are supported, with each one having the following attributes:
 
   - Address: The contract address of the token to watch and snipe
-  - AmountToSnipe: Amount of the base token of the chain (BNB, MATIC, etc) to buy
+  - ParametersSet: The set of parameters for this rule. See the [Parameters Section](#parameters-sets) section above
   - StartCheckingAt (optional): Only start checking this token after this date and time
-  - StopCheckingAt (optional): Stop checking this token after the indicated date and time
+  - RemoveAfter (optional): Stop checking and remove this token from the list automatically after the indicated date and time
   - Source (internal use, ignore): Used internally when a token has been added by the Telegram Sniper to keep track of the rule that added it
 	
 The tokens will be automatically removed from the list by the sniper when they're bought (or a buy failed).
