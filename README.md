@@ -131,6 +131,11 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 		- StopWatchListCheckingAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet
 
 ### Additional Settings
+
+- PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper
+- AddLiquiditySniperParametersSet: ParametersSet to use for the AddLiquidity sniper
+- MempoolSniperParametersSet: ParameterSet to use for the Mempool sniper
+- LogParametersSets: If enabled computes and dumps the values of all the ParametersSets
 - CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
 - BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
 - DeadWallets: List of dead wallets used for the calculation of the percentage of the total supply as liquidity. It's recommended not to touch this
@@ -170,7 +175,7 @@ The available settings are:
 -    MinLiquidityAmount: Minimum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
 -    BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable
--    
+    
 ### Sell settings
 
 -    SellEnabled: Enables or disables selling the tokens
