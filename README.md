@@ -88,7 +88,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
 
 ### Disable/enable Snipers
-  - WatchedTokensSniper: Enables or disables the watch list. See section below
+  - WatchedTokensSniper: Enables or disables the watch list. See [Watch List](#watch-list) section below
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
   - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
   - MempoolSniper: Ignore for now, this is still work in progress
@@ -126,7 +126,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 		- ChannelName: The name of the channel to listen to for this rule. You must already be a member of the channel
 		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
 		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
-		- ParametersSet: The set of parameters for this rule. See the [Parameters Section](#parameters-sets) section below
+		- ParametersSet: The set of parameters for this rule. See the [Parameters Sets](#parameters-sets) section below
 		- AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading
 		- StopWatchListCheckingAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet
 
@@ -135,7 +135,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 - BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
 - DeadWallets: List of dead wallets used for the calculation of the percentage of the total supply as liquidity. It's recommended not to touch this
 
-You can ignore the sections below, they're used to configure the log files
+You can ignore the rest of the file, it's mainly log files configuration.
 
 ## Parameters Sets
 
@@ -197,7 +197,7 @@ Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again 
 The list of watched tokens is stored in a file named *watched-tokens.json* (you can find a template in the release files). Multiple entries are supported, with each one having the following attributes:
 
   - Address: The contract address of the token to watch and snipe
-  - ParametersSet: The set of parameters for this rule. See the [Parameters Section](#parameters-sets) section above
+  - ParametersSet: The set of parameters for this rule. See the [Parameters Sets](#parameters-sets) section above
   - StartCheckingAt (optional): Only start checking this token after this date and time
   - RemoveAfter (optional): Stop checking and remove this token from the list automatically after the indicated date and time
   - Source (internal use, ignore): Used internally when a token has been added by the Telegram Sniper to keep track of the rule that added it
