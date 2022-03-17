@@ -26,19 +26,22 @@ The Honeypot Check functionality is available for the Binance Smart Chain (mainn
 	- From PairCreated events
 	- From AddLiquidityETH transactions
 	- From Telegram channels
+	- Mempool snipping of AddLiquidity transactions
 - Tokens auditing, including:
 	- Contract source verification and filtering by a configurable list of expressions
-	- Minimum liquidity amount and percentage
+	- Minimum and maximum liquidity amount and minimum percentage
 	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage
 - Whitelisting of token addresses
 - Blacklisting of addresses, symbols and names
 - Stops buying tokens when the account balance is below a configurable threshold
 - Monitoring of bought tokens that supports:
+	- Profit estimation, including estimation of sell tax and gas
 	- Taking profit after reaching a certain value
-	- Setting a fixed stop loss
+	- Setting a fixed stop loss or based on the estimated drawdown
 	- Setting a trailing stop
 	- Disabling the sell of a token for a certain time after being bought
-	- Selling a token after a certain amount of time
+	- Selling a token after a certain amount of time after buying
+	- Selling a token if the trailing stop doesn't change after a certain amount of time 
 	- Mempool monitoring to frontrun RemoveLiquidity transactions
 
 ***
@@ -46,7 +49,7 @@ The Honeypot Check functionality is available for the Binance Smart Chain (mainn
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
 Telegram channel at [http://t.me/EclecticTokenSniper](http://t.me/EclecticTokenSniper).
  
-A 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc)
+A 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc). The profit is calculated as: *amount sold* - *amount bought* - *all gas costs*.
 
 If you want to support further development of this sniper you can send a donation on Ethereum or BSC to: 
 
@@ -65,7 +68,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220312)
+## appsettings.json (v220317)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -80,20 +83,23 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 ### DEX
   - ExchangeRouterAddress: The contract address for the exchange's router. For example, for PancakeSwap it's "0x10ed43c718714eb63d5aa57b78b54704e256024e"
-  - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. If empty ("") the native token of the blockchain (BNB, for example) will be used directly to buy the tokens (if there's enough liquidity in the pair). It it's set to the contract address of token, the native token will be swapped for this intermediary token before buying the snipped token. For example, if set to "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56" on the BSC (BUSD), the *AmountToSnipe* amount of BNB will be converted to BUSD and these used to buy the sniped token.
+  - LiquidityPairAddress: The token that will be paired for liquidity in the DEX. If empty ("") the native token of the blockchain (BNB, for example) will be used directly to buy the tokens (if there's enough liquidity in the pair). It it's set to the contract address of a token, the native token will be swapped for this intermediary token before buying the snipped token. For example, if set to "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56" on the BSC (BUSD), the *AmountToSnipe* amount of BNB will be converted to BUSD and these used to buy the snipped token.
   
 ### Global settings
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
-  - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the interval set (in seconds)
+  - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the set interval (in seconds)
   - WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
 
-### Disable/enable Snipers
+### Snipers
   - WatchedTokensSniper: Enables or disables the watch list. See [Watch List](#watch-list) section below
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
-  - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidityETHs transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
-  - MempoolSniper: Ignore for now, this is still work in progress
-  - TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
-   
+  - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidity transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
+  - MempoolSniper: If enabled, the sniper will monitor the mempool for AddLiquidity transactions to try to buy in the same block or the following adjusting the buy gas price accordingly
+- TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
+- PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper
+- AddLiquiditySniperParametersSet: ParametersSet to use for the AddLiquidity sniper
+- MempoolSniperParametersSet: ParameterSet to use for the Mempool sniper
+
 ### Buy settings
 -    BuyEnabled: Lets you disable the buy of tokens globally. This can be toggled while running by pressing the B key, but it will revert back to the default configured here if the sniper is restarted
 -    MinWalletBalance: Minimum balance in your account for buying tokens. The sniper won't buy any more tokens if your balance is below this figure. If the balance increases (for example, you send more funds, or a token is sold) it will start buying again. I recommend to set this to slightly more than the *AmountToSnipe*, to guarantee that some funds are left to pay for the networks fees when selling.
@@ -132,9 +138,6 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 ### Additional Settings
 
-- PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper
-- AddLiquiditySniperParametersSet: ParametersSet to use for the AddLiquidity sniper
-- MempoolSniperParametersSet: ParameterSet to use for the Mempool sniper
 - LogParametersSets: If enabled computes and dumps the values of all the ParametersSets
 - CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
 - BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled
@@ -158,23 +161,24 @@ The available settings are:
   - EstimateGasOnBuy: If enabled, an estimation of gas is done before submitting buy transactions and checked against the maximum amount above. This has the advantage of not wasting gas in aborted transactions if these are going to fail due to being out-of-gas, but the disadvantage of making the snip operation slower. You can leave it off if using the HoneypotCheck functionality, as the gas limits are already checked by it
   - EstimateGasOnSell: Similar to the above, but for sell transactions
    
-### Taxes
-  - MaxBuyTax: Used for the token audits. Maximum Buy Tax for sniping a token
-  - MaxSellTax: Similarly, maximum Sell Tax for sniping a token
-  - MaxTotalTax: Maximum total of taxes (buy+sell) for snipping a token
-
-**Mind that the tokens owners can change the taxes at any time! That a token passes an audit is not guarantee that you'll be able to sell the token later or you won't be charged higher taxes. And obviously, it doesn't guarantee that the owner won't do a rug pull and remove all the liquidity from the DEX at any some point**
-
 ### Buy settings
 -    BuyEnabled: Enables or disables the buy of tokens for the sniper, rule or watched token using this set
 -    AmountToSnipe: The default amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC) 
 -    AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately:
     
-        -    HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes and gas, using the limits set above
+        -    HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain and exchange. At the moment BSC and Polygon are supported. If you need others, send us a request
         -    CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list
-        -    CheckMinLiquidity: Doesn't buy if the available liquidity doesn't fulfil the conditions below
--    MinLiquidityAmount: Minimum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
--    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckMinLiquidity* is enabled)
+        -    CheckLiquidity: Doesn't buy if the available liquidity doesn't fulfil the limits below
+
+**Mind that the tokens owners can change the taxes at any time! That a token passes an audit is not guarantee that you'll be able to sell the token later or you won't be charged higher taxes. And obviously, it doesn't guarantee that the owner won't do a rug pull and remove all the liquidity from the DEX at any some point**
+
+- MaxBuyTax: Used for the token audits. Maximum Buy Tax for sniping a token
+- MaxSellTax: Similarly, maximum Sell Tax for sniping a token
+- MaxTotalTax: Maximum total of taxes (buy+sell) for snipping a token
+- MaxDrawdown: The estimated *drawdown* is the estimated loss caused by the price impacts, taxes and gas fees if the token was bought and sold immediately. The bought won't buy a token if the estimated drawdown is higher than this
+-    MinLiquidityAmount: Minimum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckLiquidity* is enabled)
+-    MaxLiquidityAmount: Maximum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckLiquidity* is enabled). Set to -1 for unlimited
+-    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckLiquidity* is enabled)
 -    BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable
     
 ### Sell settings
@@ -182,18 +186,32 @@ The available settings are:
 -    SellEnabled: Enables or disables selling the tokens
 -    TakeProfit: Sells a token if the current profit is above this figure. It's indicated as a percentage above the buy price, for example, 50 means "sell when the profit is above 50%", that is, the current price is about 150% of the buy price
 -    StopLoss: Sets a stop loss. A token will be sold if its price goes below this percentage in relation to the buy price. For example, -25 means "sell when the price has gone down by a 25%"
+- StopLossBasedOnDrawdown: Calculate the initial stop loss from the estimated drawdown (see an explanation of drawdown above). This option requires HoneypotCheck support for the blockchain and exchange. At the moment BSC and Polygon are supported. If you need others, send us a request
+- StopLossBasedOnDrawdownMargin: How much below the estimated drawdown to set initial stop loss if the previous option is enabled. For example, if the estimated drawdown of a token just bought is 17.75% and the margin is 12, the initial stop loss would be set to -27.75%
 -    TrailingStopStrategy: If enabled and the price of a token increases above a threshold, the stop loss will be adjusted at a certain distance from the current price. It can be set to:
-	- none: To disable it
-	- buy: the threshold and distance will be calculated as a percentage of the buy price
-	- current: the thresholds and distance will be calculated as a percentage of the current price
-	- profit: the thresholds and distance will be calculated as a percentage of the current profit
+
+		- none: To disable it
+		- buy: the threshold and distance will be calculated as a percentage of the buy price
+		- current: the thresholds and distance will be calculated as a percentage of the current price
+		- profit: the thresholds and distance will be calculated as a percentage of the current profit
 -    TrailingStopActivationThreshold: How much the price has to increase above the buy price for the stop loss to be changed
 -    TrailingStopThreshold: How much the price has to increase above the previous stop loss for this to be changed
 -    TrailingStopDistance: Distance at which the new stop loss will be set
 -    SellSlippage: Maximum slippage set during selling
 -    DontSellBeforeMinutes: Prevents selling a token, even if the stop loss is touched, for the first few minutes after buying a token. The trailing stop (if enabled) won't be active during this time either. This can be used to prevent being taken out of the market by the initial volatility after a token is launched. Use at your own risk!
--    ForceSellAfterTime: Sells tokens after the amount of minutes indicated in the setting just below, no matter if any of the conditions above is fulfilled or not
--    ForceSellAfterMinutes: Amount of minutes as explained above
+-    SellAfterMinutes: Sells tokens after the amount of minutes indicated in this setting, no matter if any of the other conditions above is fulfilled or not. Set to -1 to disable
+- SellIfTrailingStopNotChangedInMinutes: Sells tokens if the trailing stop hasn't changed after the amount of minutes indicated in this setting, no matter if any of the other conditions above is fulfilled or not. Set to -1 to disable
+- ApplySellGasTaxToProfitEstimations: If enabled, an estimation of sell tax and approval and sell gas is deducted from the profit estimation used for the take profit, stop loss and trailing stop. This option requires HoneypotCheck support for the blockchain and exchange. At the moment BSC and Polygon are supported. If you need others, send us a request
+- RecheckSellGasTaxMinutes: Sets the frequency for updating the tax and gas estimations used for the above
+- ApprovalMethod: Defines when the approval to sell the tokens will be done. It can be set to one of the following:
+
+	- preapprove: Sends the approve request just after the token is bought, except if the account had the token already approved
+	- check: At sell time, checks if the token is already approved and sends the transaction if it isn't
+	- always: At sell time, it just sends the approval request straight away so as to not waste any time in doing any checks
+
+For (mempool) emergency sells the *always* method will be used, unless the token has been pre-approved.
+
+- 	WaitForApproval: If enabled, waits for the confirmation of the approve transaction before submitting the sell transaction. It's recommended to leave it disabled, unless for some estrange reason you're having frequent issues with approvals. For emergency sells approvals are never waited for, even if this option is set, as the point is to try to frontrun the liquidity removal
 
 **Each bought token remembers the name of the set used when it was bought, even after restarting the bot; be careful if you change the sell settings of a set for which there are still bought tokens being monitored as this will affect them. If you don't want to affect the sell parameters of already owned tokens, create and use a new set for new buys**
 
@@ -211,7 +229,6 @@ The list of watched tokens is stored in a file named *watched-tokens.json* (you 
 The tokens will be automatically removed from the list by the sniper when they're bought (or a buy failed).
 
 ## Plans for the next releases
-- Mempool snipping
 - Wallet mirroring
 - Explore arbitrage strategies (possibly using flash loans, etc)
 - Graphical User Interface
