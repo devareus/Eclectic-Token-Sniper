@@ -7,6 +7,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Avalanche C-Chain
 - Polygon
 - Fantom Opera
+- Harmony ONE
 
 #### DEXs
 - UniswapV2
@@ -15,8 +16,13 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - ApeSwap
 - Biswap
 - BakerySwap
+- Traderjoexyz
 
-The Honeypot Check functionality is available for the Binance Smart Chain (mainnet and testnet) and Polygon. I can add support for others on request. Get in touch!
+The Honeypot Check functionality is available for the Binance Smart Chain (mainnet and testnet), Polygon, Fantom and Avalanche.
+
+The Safe-buy functionality is available for the Binance Smart Chain (mainnet and testnet), Polygon and Fantom.
+
+I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a6602a2Ce7F00) enough native tokens of the corresponding blockchain so I can deploy the contracts and get in touch!
 
 ## Main features
 
@@ -28,9 +34,10 @@ The Honeypot Check functionality is available for the Binance Smart Chain (mainn
 	- From Telegram channels
 	- Mempool snipping of AddLiquidity transactions
 - Tokens auditing, including:
+	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage
 	- Contract source verification and filtering by a configurable list of expressions
 	- Minimum and maximum liquidity amount and minimum percentage
-	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage
+- Optional buy using a safety contract that checks for honeypot, liquidity and drawdown within the same buy transaction and reverts it back if the token doesn't fulfil the requirements
 - Whitelisting of token addresses
 - Blacklisting of addresses, symbols and names
 - Stops buying tokens when the account balance is below a configurable threshold
@@ -51,6 +58,8 @@ Telegram channel at [http://t.me/EclecticTokenSniper](http://t.me/EclecticTokenS
  
 A 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc). The profit is calculated as: *amount sold* - *amount bought* - *all gas costs*.
 
+Buying using the safe-buy contract has a fee of 1.5% of the amount paid if successful. Nothing is charged otherwise. 
+
 If you want to support further development of this sniper you can send a donation on Ethereum or BSC to: 
 
 0xa9f5B4Fd93ddA4eb247CC1cC726a6602a2Ce7F00
@@ -68,7 +77,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220317)
+## appsettings.json (v220329)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -79,7 +88,9 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 ### Node
   - NodeAddressHttp: The RPC endpoint of the blockchain node that you'll connect to. You can use one of the official nodes, get a node from moralis.io or deploy your own node
   - NodeAddressWss: For some snipping options you'll also need a websocket node endpoint. You can use the nariox node, get one from moralis.io or use your own one
-  - GetContractSourceUrl: The URL for downloading the tokens' contracts' source codes. Don't change it unless you know what you're doing
+  - GetContractSourceUrl: The URL for downloading the tokens' contracts' source codes from a blockchain explorer.
+
+- NativeTokenSymbol: Symbol of the native token of the chain (BNB, MATIC, FTM, AVAX, Metis, ONE, etc). You can generally leave it blank and the bot will find it out automatically. But with some non-standard DEXs you might need to set it manually.
 
 ### DEX
   - ExchangeRouterAddress: The contract address for the exchange's router. For example, for PancakeSwap it's "0x10ed43c718714eb63d5aa57b78b54704e256024e"
@@ -92,13 +103,15 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 ### Snipers
   - WatchedTokensSniper: Enables or disables the watch list. See [Watch List](#watch-list) section below
-  - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
+- TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
+ - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
   - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidity transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
   - MempoolSniper: If enabled, the sniper will monitor the mempool for AddLiquidity transactions to try to buy in the same block or the following adjusting the buy gas price accordingly
-- TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
 - PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper
 - AddLiquiditySniperParametersSet: ParametersSet to use for the AddLiquidity sniper
 - MempoolSniperParametersSet: ParameterSet to use for the Mempool sniper
+- MempoolSniperMaxGasPrice: Maximum gas price when buying from the mempool sniper
+- MempoolSniperGasPriceAdjustment: By default the bot uses the same gas price as the transaction found in the mempool. It's not recommended to increase it because as you risk front running the transaction and the buy will fail because the liquidity addition isn't effective yet. And if you set a negative number (lower the gas price) other bots will most surely buy before you.
 
 ### Buy settings
 -    BuyEnabled: Lets you disable the buy of tokens globally. This can be toggled while running by pressing the B key, but it will revert back to the default configured here if the sniper is restarted
@@ -107,11 +120,10 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 ### Sell settings
 -    SellEnabled: Lets you disable the sell the tokens globally. This can be toggled while running by pressing the S key, but it will revert back to the default configured here if the sniper is restarted
--    WaitForApproval: If enabled, wait for the confirmation of the approval transaction before sending the sell transaction
 -    MempoolRemoveLiquidityEmergencySell: If enabled, the mempool is monitored for RemoveLiquidity transactions of the owned tokens. If one is detected the bot will try to frontrun the removal transaction to sell the tokens before the liquidity is gone. Mind that any RemoveLiquidity of the token will trigger this, even if it's only partial, so false positives are possible
--    EmergencySellGasPriceInc: Increment of gas price for emergency approvals and sells, in relation to the gas price of the RemoveLiquidity transaction that triggered them. Should be at least 1 to have any chances of frontrunning it
+-    EmergencySellGasPriceAdjustment: Adjustment of gas price for emergency approvals and sells, in relation to the gas price of the RemoveLiquidity transaction that triggered them. Should be at least 1 to have any chances of frontrunning it. The higher the value the better chances of selling before the liquidity is gone, but mind the costs!
 -    EmergencySellMaxGasPrice: Maximum gas price for emergency approvals and sells. This is a safe net in case a RemoveLiquidity had a crazy gas price
--    EmergencySellSlippage: Maximum slippage for emergency sells
+-    EmergencySellSlippage: Maximum slippage for emergency sells. You probably want a bigger percentage than usual here, as it's better to recover some of your investment than nothing.
 
 ### White/Black Listing
 -    WhitelistedTokens: This list of token addresses can have two different but similar usages. If *OnlyBuyWhitelisted* is enabled, only the tokens in this list can be bought. If it's disabled, it skips any audits for these tokens (use with care!)
@@ -180,7 +192,22 @@ The available settings are:
 -    MaxLiquidityAmount: Maximum liquidity in BNB (or the LiquidityPair if one has been specified) in the DEX to allow buying a token (if *CheckLiquidity* is enabled). Set to -1 for unlimited
 -    MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckLiquidity* is enabled)
 -    BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable
-    
+- UseSafeBuyContract: Buy using the safe-buy contract. If enabled, a special contract will be used to buy that will check for honeypot, liquidity and tax&price impact limits in the same transaction, reverting it if it's not safe to buy the token. 
+
+**Using this contract has an additional dev fee of 1.5% of the amount invested plus a higher cost in gas, as the contract will have to check liquidity and simulate a buy, an approval and a sell, before the effective buy, and all these tests will be done by the miner processing the transaction and not just a plain node like in the normal honeypot check (which doesn't consume gas), and the gas usage can be relatively high when buying a token with a complex transfer function.**
+
+**For failed buys, depending on which step the checks fail you'll pay more or less gas: once a condition isn't met, the contract doesn't test the others so as to save some gas.**
+
+**Unless you're snipping from the mempool or you really want to be as fast as possible in submitting a buy while still doing some checks you'll be better off by just using the plain honeypot check, which is slower but free**
+
+The following settings let you fine tune the safe-buy feature:
+
+- SafeBuyCheckHoneypot: Simulates to buy, approve and sell before actually buying
+- SafeBuyCheckHoneypot: Doesn't buy if the liquidity is lower than *MinLiquidityAmount* above
+- SafeBuyCheckMaxLiquidity: Doesn't buy if the liquidity is higher than *MaxLiquidityAmount* above
+- SafeBuyCheckMaxTaxAndPriceImpact: Doesn't buy if the estimated loss due to taxes and price impact is higher than the parameter below.
+- SafeBuyMaxTaxAndPriceImpact: Maximum estimated loss due to taxes and price impact. It's similar to the *MaxDrawdown* setting above, but doesn't consider the gas costs, as you're going to pay most of them anyway by running the buy&sell simulation within the buy transaction and calculating them would only increase the gas costs of using the contract for buying with very little gas saving if reverting the transaction because of it.
+
 ### Sell settings
 
 -    SellEnabled: Enables or disables selling the tokens
@@ -213,7 +240,7 @@ For (mempool) emergency sells the *always* method will be used, unless the token
 
 - 	WaitForApproval: If enabled, waits for the confirmation of the approve transaction before submitting the sell transaction. It's recommended to leave it disabled, unless for some estrange reason you're having frequent issues with approvals. For emergency sells approvals are never waited for, even if this option is set, as the point is to try to frontrun the liquidity removal
 
-**Each bought token remembers the name of the set used when it was bought, even after restarting the bot; be careful if you change the sell settings of a set for which there are still bought tokens being monitored as this will affect them. If you don't want to affect the sell parameters of already owned tokens, create and use a new set for new buys**
+**Each bought token remembers the name of the set used when it was bought, even after restarting the bot; be careful if you change the sell settings of a parameters set for which there are still bought tokens being monitored as this will affect them. If you don't want to affect the sell parameters of already owned tokens, create and use a new set for new buys**
 
 ## Watch List
 Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again the tokens in the *watched-tokens.json* file and will try to buy them once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses.
