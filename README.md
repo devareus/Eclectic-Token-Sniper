@@ -27,6 +27,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 ## Main features
 
 - Support for multiple chains, decentralised exchanges and liquidity pairs
+- Able to monitor, buy and sell multiple tokens simulaneously
 - Multiple methods for sniping tokens:
 	- From a list of token addresses to watch
 	- From PairCreated events
