@@ -18,9 +18,9 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - BakerySwap
 - Traderjoexyz
 
-The Honeypot Check functionality is available for the Binance Smart Chain (mainnet and testnet), Polygon, Fantom and Avalanche.
+The Honeypot Check functionality is available for the Binance Smart Chain, Polygon, Fantom and Avalanche (including their mainnets and testnets).
 
-The Safe-buy functionality is available for the Binance Smart Chain (mainnet and testnet), Polygon and Fantom.
+The Safe-buy functionality is available for the Binance Smart Chain, Polygon and Fantom (mainnets and testnets).
 
 I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a6602a2Ce7F00) enough native tokens of the corresponding blockchain so I can deploy the contracts and get in touch!
 
