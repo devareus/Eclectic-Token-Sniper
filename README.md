@@ -32,7 +32,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- From a list of token addresses to watch
 	- From PairCreated events
 	- From AddLiquidityETH transactions
-	- From Telegram channels
+	- From Telegram channels/groups, including private ones and obfuscated addresses
 	- Mempool snipping of AddLiquidity transactions
 - Tokens auditing, including:
 	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage
@@ -51,7 +51,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- Selling a token after a certain amount of time after buying
 	- Selling a token if the trailing stop doesn't change after a certain amount of time 
 	- Mempool monitoring to frontrun RemoveLiquidity transactions
-
+- Simulation mode to test your sources and settings without risking any real funds
 ***
 
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
@@ -78,7 +78,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220417)
+## appsettings.json (v220427)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -101,6 +101,17 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the set interval (in seconds)
   - WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted
+
+### Simulation mode
+
+  - SimulationMode: If enabled, the bot will run in simulation mode, without submitting any real transactions. This can be useful to see if your sources or settings can make consistent profits, without having to risk your real money while you adjust them. Mind that some things, like how other transactions in the current block will impact prices, can't be simulated so the simulated results could differ significantly from what would have happened in reality. Simulations will be more accurate on blockchains where the HoneypotCheck contract is deployed
+  - SimulationModeWalletBalance: Initial simulated balance the the first time you run the bot in simulation mode or after deleting the *simulation-balance.json* file
+  
+  **You don't need the whole SimulationModeWalletBalance amount in your real wallet, but even though it won't be spent, you need at least enough for the AmountToSnipe + gas. Otherwise all they buy simulations will fail.**
+
+  - SimulationModeBuyDelay: Simulated time for your buy transactions to be processed. The token price used for your simulated transaction will depend on this. It's recommended to set it to the block time of the chain or around that
+  - SimulationModeApproveDelay: Same as the above, but for approve transactions
+  - SimulationModeSellDelay: Similarly, for sell transactions. Will determine what token price will be used to simulate your sells
 
 ### Snipers
   - WatchedTokensSniper: Enables or disables the watch list. See [Watch List](#watch-list) section below
@@ -140,9 +151,14 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 *To obtain your Telegram API credentials follow the instructions here: [https://core.telegram.org/api/obtaining_api_id](https://core.telegram.org/api/obtaining_api_id). **Use at your own risk as whether Telegram allows this kind of use is a bit of a grey area and they could ban you forever from their service***
 
+-  TelegramSilenceChatsList: Set to true if you don't want to see the list of Telegram channels or groups you're connected to, each time that you start the bot
  -   TelegramListenerConfigurations: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
 		- RuleName: A name for this rule, for your reference
-		- ChannelName: The name of the channel to listen to for this rule. You must already be a member of the channel
+		- ChatId: The *username* (the part after *t.me/* URLs, for public ones) or the numerical ID (for private ones) of the channel/group to listen to for this rule. You must already be a member of the channel/group. You can obtain these from the list shown when you start the Telegram sniper
+		- AdminsOnly: Enable it to only get addresses from messages of the admins of the chat
+		- IgnoreBots: Usually necessary if using the previous option, as bots are normally admins and you don't want to buy a token when a bot mentions a user that has a token address in his name
+		- SolveMathExpressions: Enable to solve math expressions in the messages when searching for contract addresses. For example, 0xae13d(4+5)89daC2f0dEbFf460aC112a837C89BAa7cd would be solved into 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd
+		- IgnoreBlankSpace: Enable to ignore all blank space when searching for contract addresses. This helps with addresses split across several lines
 		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
 		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
 		- ParametersSet: The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified
