@@ -1,3 +1,5 @@
+[Download the latest version here](https://github.com/devareus/Eclectic-Token-Sniper/releases)
+
 # Eclectic-Token-Sniper
 Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. It should work with any decentralized exchange compatible with the Uniswap V2 API on any blockchain compatible with Ethereum. For example, just to mention a few:
 
@@ -67,7 +69,7 @@ If you want to support further development of this sniper you can send a donatio
 
 
 ## How to run it
-Download the corresponding executable for your platform from the Releases section and place it in an empty folder. At the moment there are binaries available for Windows x64, Linux x64, Linux ARM (32 and 64 bits) and MacOS. If you need binaries for another platform, get in touch and I'll try to build one.
+Download the corresponding executable for your platform from the [Releases section](https://github.com/devareus/Eclectic-Token-Sniper/releases) and place it in an empty folder. At the moment there are binaries available for Windows x64, Linux x64, Linux ARM (32 and 64 bits) and MacOS. If you need binaries for another platform, get in touch and I'll try to build one.
 
 Download the appsettings-template.json file, copy it as appsettings.json and put in the same folder as the executable.
 Edit it following the instructions below.
