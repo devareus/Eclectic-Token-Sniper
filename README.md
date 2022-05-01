@@ -1,5 +1,5 @@
-[Download the latest version here](https://github.com/devareus/Eclectic-Token-Sniper/releases)
 
+[Download the latest version here](https://github.com/devareus/Eclectic-Token-Sniper/releases)
 # Eclectic-Token-Sniper
 Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain. It should work with any decentralized exchange compatible with the Uniswap V2 API on any blockchain compatible with Ethereum. For example, just to mention a few:
 
@@ -36,6 +36,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- From AddLiquidityETH transactions
 	- From Telegram channels/groups, including private ones and obfuscated addresses
 	- Mempool snipping of AddLiquidity transactions
+	- Customisable rules that let you trigger a buy depending on sender or receiver addresses of a transaction, its method signature, values in the input, etc
 - Tokens auditing, including:
 	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage
 	- Contract source verification and filtering by a configurable list of expressions
@@ -69,7 +70,7 @@ If you want to support further development of this sniper you can send a donatio
 
 
 ## How to run it
-Download the corresponding executable for your platform from the [Releases section](https://github.com/devareus/Eclectic-Token-Sniper/releases) and place it in an empty folder. At the moment there are binaries available for Windows x64, Linux x64, Linux ARM (32 and 64 bits) and MacOS. If you need binaries for another platform, get in touch and I'll try to build one.
+Download the corresponding executable for your platform from the Releases section and place it in an empty folder. At the moment there are binaries available for Windows x64, Linux x64, Linux ARM (32 and 64 bits) and MacOS. If you need binaries for another platform, get in touch and I'll try to build one.
 
 Download the appsettings-template.json file, copy it as appsettings.json and put in the same folder as the executable.
 Edit it following the instructions below.
@@ -80,7 +81,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220427)
+## appsettings.json (v220501)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -117,15 +118,17 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 ### Snipers
   - WatchedTokensSniper: Enables or disables the watch list. See [Watch List](#watch-list) section below
-- TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
- - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
+  - TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources
+  - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe
   - AddLiquiditySniper: If enabled, the sniper will listen for all AddLiquidity transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens
   - MempoolSniper: If enabled, the sniper will monitor the mempool for AddLiquidity transactions to try to buy in the same block or the following adjusting the buy gas price accordingly
-- PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper
-- AddLiquiditySniperParametersSet: ParametersSet to use for the AddLiquidity sniper
-- MempoolSniperParametersSet: ParameterSet to use for the Mempool sniper
-- MempoolSniperMaxGasPrice: Maximum gas price when buying from the mempool sniper
-- MempoolSniperGasPriceAdjustment: By default the bot uses the same gas price as the transaction found in the mempool. It's not recommended to increase it because as you risk front running the transaction and the buy will fail because the liquidity addition isn't effective yet. And if you set a negative number (lower the gas price) other bots will most surely buy before you.
+  - EclecticSniperBlocks: Enables a sniper based on flexible rules ([see below](#eclectic-sniper)) analising confirmed transactions
+  - EclecticSniperMempool: Same as above, but for transactions in the mempool. See [Eclectic Sniper](#eclectic-sniper)
+  - PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper
+  - AddLiquiditySniperParametersSet: ParametersSet to use for the AddLiquidity sniper
+  - MempoolSniperParametersSet: ParameterSet to use for the Mempool sniper
+  - MempoolSniperMaxGasPrice: Maximum gas price when buying from the mempool sniper
+  - MempoolSniperGasPriceAdjustment: By default the bot uses the same gas price as the transaction found in the mempool. It's not recommended to increase it because as you risk front running the transaction and the buy will fail because the liquidity addition isn't effective yet. And if you set a negative number (lower the gas price) other bots will most surely buy before you.
 
 ### Buy settings
 -    BuyEnabled: Lets you disable the buy of tokens globally. This can be toggled while running by pressing the B key, but it will revert back to the default configured here if the sniper is restarted
@@ -154,18 +157,101 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 *To obtain your Telegram API credentials follow the instructions here: [https://core.telegram.org/api/obtaining_api_id](https://core.telegram.org/api/obtaining_api_id). **Use at your own risk as whether Telegram allows this kind of use is a bit of a grey area and they could ban you forever from their service***
 
 -  TelegramSilenceChatsList: Set to true if you don't want to see the list of Telegram channels or groups you're connected to, each time that you start the bot
- -   TelegramListenerConfigurations: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
+-  TelegramListenerConfigurations: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
 		- RuleName: A name for this rule, for your reference
 		- ChatId: The *username* (the part after *t.me/* URLs, for public ones) or the numerical ID (for private ones) of the channel/group to listen to for this rule. You must already be a member of the channel/group. You can obtain these from the list shown when you start the Telegram sniper
 		- AdminsOnly: Enable it to only get addresses from messages of the admins of the chat
 		- IgnoreBots: Usually necessary if using the previous option, as bots are normally admins and you don't want to buy a token when a bot mentions a user that has a token address in his name
 		- SolveMathExpressions: Enable to solve math expressions in the messages when searching for contract addresses. For example, 0xae13d(4+5)89daC2f0dEbFf460aC112a837C89BAa7cd would be solved into 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd
 		- IgnoreBlankSpace: Enable to ignore all blank space when searching for contract addresses. This helps with addresses split across several lines
+		- UseAddressNumber: Indicates which address within the message to snip. 1 for the first one, 2 for the second, etc. If not present or set to 0, all the addresses present in a rule-matching message will be sniped
 		- RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address
 		- ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping
 		- ParametersSet: The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified
 		- AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading
 		- StopWatchListCheckingAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet
+
+### Eclectic Sniper
+The "Eclectic Sniper" allows you to buy or sell tokens when a transactions is found (either confirmed in the blockchain or in the mempool) that matches certain conditions. This can be used to mirror wallets, snipe a token when the token's developer call a certain method in a contract and probably many other uses. Once *EclecticSniperBlocks*, *EclecticSniperMempool* or both have been enabled, you can set a list of rules in *EclecticSniperConfigurations*. All the conditions in a rule have to be true for the rule to be triggered; usually you'll only set a few. The allowed settings are:
+
+- RuleName: A name for this rule, for your reference (required)
+- Action: Must be *buy* or *sell* (required). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method)
+- Origin: Can be *block*, *mempool* or *any* for both
+- From: If present, the sender of the transaction must be the specified address
+- To: If present, the destination of the transaction must be the specified address (usually a DEX or Token contract)
+- FromIn: If present, the sender of the transaction must be one of the addresses in the provided list
+- ToIn: If present, the sender of the transaction must be one of the addresses in the provided list
+- MethodByteSignatureIs: If present, the method's byte signature (first 8 bytes of the Input data) must match this
+- MethodTextSignatureIs: If present, the method's signature (in text form) must match this
+- Token: Address of the token to buy or sell if the rule is matched
+- TokenFromInputOffset: Instead of setting a fixed token to buy with the previous option, you can obtain the address from the input data of the triggering transaction by specifying its offset here (the position of the first byte of the address, starting counting from 0)...
+- TokenFromToAddress: ...Or buy using the "To" address of the triggering transaction
+- Input: Sets a number of conditions that certain data in the Input of the transaction must match. The available options are:
+  - Offset: Position of the data (counting from 0) (required)
+  - Length: Length of the data (for example, 40 for addresses) (required)
+  - Is, IsNot, IsLessThan, IsLessThanOrEqual, IsGreaterThan, IsGreaterThanOrEqual: The condition/s that the value must fulfil. The values are specified in hexadecimal, whether the prefix "0x" is used or not
+  - IsIn: The value must be one of the list
+  - IsNotIn: The value can't be any of the list
+- GasPriceFromTxAdjustment: If present, the gas price of our trade transaction will be calculated from the gas price of the triggering transaction, plus or less the value indicated here. Usefull usally when snipping from the mempool: a positive number will try to frontrun the triggering transaction. A negative value will try to get the transaction confirmed after the triggering one. A value of 0 will try to get the trade transaction confirmed in the same block, but there's always a risk of frontrunning the triggering transaction. If not present, the fix *BuyGasPrice* or *SellGasPrice* value in the Parameters Set will be used
+- ParametersSet, AddToWatchList and RemoveFromWatchListAfterMinutes: They work exactly as for the [Telegram Sniper](#telegram-sniper)
+
+As a very simple example, the following rule would buy any token that receives a `enableTrading()` transaction, trying to buy in the same block:
+
+        {
+          "RuleName": "BuyOnEnableTrading",
+          "Action": "buy",
+          "Origin": "mempool",
+          "MethodTextSignatureIs": "enableTrading()",
+          "TokenIsToAddress": true,
+          "ParametersSet": "mempool",
+          "GasPriceFromTxAdjustment": 0
+        }
+
+
+The following is a bit more advanced example, that buys the token "0xABCDEF...0123456789" when its transfer and hold limits are set above certain amounts:
+
+      {
+        "RuleName": "BuyOnSetLimits",
+        "Action": "buy",
+        "Origin": "block",
+        "ToIs": "0xABCDEF...0123456789",
+        "MethodTextSignatureIs": "Set_Limits_For_Wallets(uint256,uint256)",
+        "Input":[
+          {
+            "Offset": 8,
+            "Length": 64,
+            "IsGreaterThan": "0x10000000"
+          },
+          {
+            "Offset": 72,
+            "Length": 64,
+            "IsGreaterThan": "0x50000000"
+          }
+        ],
+        "TokenIsToAddress": true
+      }
+
+Quite similar to the previous one, this example tries to sell the token ***before*** its transfer are reduced:
+
+      {
+        "RuleName": "SellOnSetLimits",
+        "Action": "sell",
+        "Origin": "mempool",
+        "ToIs": "0xABCDEF...0123456789",
+        "MethodTextSignatureIs": "Set_Limits_For_Wallets(uint256,uint256)",
+        "Input":[
+          {
+            "Offset": 8,
+            "Length": 64,
+            "IsLessThan": "0x10000000"
+          }
+        ],
+        "TokenIsToAddress": true,
+        "ParametersSet": "mempool",
+        "GasPriceFromTxAdjustment": 50
+      }
+
+
 
 ### Additional Settings
 
@@ -264,7 +350,7 @@ For (mempool) emergency sells the *always* method will be used, unless the token
 ## Watch List
 Can be enabled with *WatchedTokensSniper*. The sniper will audit once and again the tokens in the *watched-tokens.json* file and will try to buy them once they pass the audit. This, with *AuditTokens* and *HoneypotCheckEnabled* enabled, is probably the most reliable method to snip known token addresses.
 
-The list of watched tokens is stored in a file named *watched-tokens.json* (you can find a template in the release files). Multiple entries are supported, with each one having the following attributes:
+The list of watched tokens is stored in a file named *watched-tokens.json* (or *simulation-watched-tokens.json* for simulations). You can find a template in the release files. Multiple entries are supported, with each one having the following attributes:
 
   - Address: The contract address of the token to watch and snipe
   - ParametersSet (optional): The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified
@@ -275,7 +361,7 @@ The list of watched tokens is stored in a file named *watched-tokens.json* (you 
 The tokens will be automatically removed from the list by the sniper when they're bought (or a buy failed).
 
 ## Plans for the next releases
-- Wallet mirroring
+- Add support for selling previously owned tokens (although at the moment one can add a token manually to the tokens-current.json list and have the bot to monitor and sell it, it'd be best if the bot could add a token to the list by just asking a few simple questions)
 - Explore arbitrage strategies (possibly using flash loans, etc)
 - Graphical User Interface
 - Add support for non EVM-compatible blockchains
