@@ -231,7 +231,7 @@ The following is a bit more advanced example, that buys the token "0xABCDEF...01
         "TokenIsToAddress": true
       }
 
-Quite similar to the previous one, this example tries to sell the token ***before*** its transfer are reduced:
+Quite similar to the previous one, this example tries to sell the token ***before*** its transfer limit is reduced:
 
       {
         "RuleName": "SellOnSetLimits",
@@ -251,7 +251,7 @@ Quite similar to the previous one, this example tries to sell the token ***befor
         "GasPriceFromTxAdjustment": 50
       }
 
-
+***Note: Mind that the *Set_Limits_For_Wallets(uint256,uint256)* is not standard and tokens might have another similar method or no equivalent at all***
 
 ### Additional Settings
 
