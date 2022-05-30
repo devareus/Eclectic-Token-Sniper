@@ -82,7 +82,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220520)
+## appsettings.json (v220530)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -329,7 +329,8 @@ The available settings are:
 - MaxDrawdown: The estimated *drawdown* is the estimated loss caused by the price impacts, taxes and gas fees if the token was bought and sold immediately. The bought won't buy a token if the estimated drawdown is higher than this.
 - MinLiquidityInBaseTokens: Minimum liquidity in the pair to allow buying a token (if *CheckLiquidity* is enabled), expressed as the equivalent worth of base tokens.
 - MaxLiquidityInBaseTokens: Maximum liquidity in the pair to allow buying a token (if *CheckLiquidity* is enabled), expressed as the equivalent worth of base tokens. Set to -1 for unlimited.
-- MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply, in the DEX to allow buying a token (if *CheckLiquidity* is enabled).
+- MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply of the token, in the pair to allow buying a token (if *CheckLiquidity* is enabled).
+- MinNewAddedLiquidityPercentage: Minimum liquidity, as a percentage of the total supply of the token, added by the AddLiquidity transaction (if *CheckLiquidity* is enabled). This applies only to *PairCreatedEventSniper* and *AddLiquiditySniperBlocks*.
 - BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable.
 - UseSafeBuyContract: Buy using the safe-buy contract. If enabled, a special contract will be used to buy that will check for honeypot, liquidity and tax&price impact limits in the same transaction, reverting it if it's not safe to buy the token.
 
