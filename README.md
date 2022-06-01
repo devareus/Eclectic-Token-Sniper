@@ -82,7 +82,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220530)
+## appsettings.json (v220601)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -109,9 +109,6 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
   - SimulationMode: If enabled, the bot will run in simulation mode, without submitting any real transactions. This can be useful to see if your sources or settings can make consistent profits, without having to risk your real money while you adjust them. Mind that some things, like how other transactions in the current block will impact prices, can't be simulated so the simulated results could differ significantly from what would have happened in reality. Simulations will be more accurate on blockchains where the HoneypotCheck contract is deployed.
   - SimulationModeWalletBalance: Initial simulated balance the the first time you run the bot in simulation mode or after deleting the *simulation-balance.json* file.
-  
-  **You don't need the whole SimulationModeWalletBalance amount in your real wallet, but even though it won't be spent, you need at least enough for the AmountToSnipe + gas. Otherwise all they buy simulations will fail.**
-
   - SimulationModeBuyDelay: Simulated time for your buy transactions to be processed. The token price used for your simulated transaction will depend on this. It's recommended to set it to the block time of the chain or around that.
   - SimulationModeApproveDelay: Same as the above, but for approve transactions.
   - SimulationModeSellDelay: Similarly, for sell transactions. Will determine what token price will be used to simulate your sells.
@@ -127,7 +124,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - EventSniper: Enables a sniper based on flexible rules analising events. See [Customisable Event Sniper](#customisable-event-sniper).
   - PairCreatedEventSniperParametersSet: ParametersSet to use for the PairCreated events sniper.
   - AddLiquiditySniperBlocksParametersSet: ParametersSet to use for the AddLiquiditySniperBlocks sniper.
-  - AddLiquiditySniperMempoolParametersSet: ParameterSet to use for the AddLiquiditySniperMempool sniper.
+  - AddLiquiditySniperMempoolParametersSet: ParametersSet to use for the AddLiquiditySniperMempool sniper.
   - AddLiquiditySniperMempoolMaxGasPrice: Maximum gas price when buying from the AddLiquiditySniperMempool sniper.
   - AddLiquiditySniperMempoolGasPriceAdjustment: By default the bot uses the same gas price as the transaction found in the mempool. It's not recommended to increase it because as you risk front running the transaction and the buy will fail because the liquidity addition isn't effective yet. And if you set a negative number (lower the gas price) other bots will most surely buy before you.
 
@@ -165,7 +162,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
    - IgnoreBots: Usually necessary if using the previous option, as bots are normally admins and you don't want to buy a token when a bot mentions a user that has a token address in his name.
    - SolveMathExpressions: Enable to solve math expressions in the messages when searching for contract addresses. For example, 0xae13d(4+5)89daC2f0dEbFf460aC112a837C89BAa7cd would be solved into 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd.
    - IgnoreBlankSpace: Enable to ignore all blank space when searching for contract addresses. This helps with addresses split across several lines.
-   - UseAddressNumber: Indicates which address within the message to snip. 1 for the first one, 2 for the second, etc. If not present or set to 0, all the addresses present in a rule-matching message will be sniped.
+   - UseAddressNumber: Indicates which address within the message to snip. 1 for the first one, 2 for the second, etc. If not present or set to 0, all the addresses present in a rule-matching message will be sniped. Negative numbers to start counting from the bottom of the message (ie, -1 for last address, -2 for the 2nd last, etc)
    - RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address.
    - ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping.
    - ParametersSet: The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified.
@@ -273,6 +270,10 @@ The bot can listen for Events in the blockchain for tokens to sell or buy, using
 - Action: Must be *buy* or *sell* (required). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method).
 - AddressIs: The address of the contract emitting the event (optional).
 - Topic0Is, Topic1Is and Topic2Is: Topics filters. In most cases you'll set two: topic 0 with the event type and either topic 1 or 2 as the origin or destination addresses, but this will vary depending on the interface defined by the developer of the contract that emits the event.
+- TransactionFromIs: If present, the sender of the transaction to which the event belongs must be the specified address.
+- TransactionToIs: If present, the destination of the transaction to which the event belongs must be the specified address (usually a DEX or Token contract).
+- TransactionFromIsIn: If present, the sender of the transaction to which the event belongs must be one of the addresses in the provided list.
+- TransactionToIsIn: If present, the sender of the transaction to which the event belongs must be one of the addresses in the provided list.
 
   The bot can obtain the address of the token to buy or sell using one of the following options:
 
