@@ -1,3 +1,4 @@
+![ET sniper](logo1.jpeg)
 
 [Download the latest version here](https://github.com/devareus/Eclectic-Token-Sniper/releases)
 # Eclectic-Token-Sniper
