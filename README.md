@@ -61,10 +61,12 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
 Telegram channel at [http://t.me/EclecticTokenSniper](http://t.me/EclecticTokenSniper).
- 
-A 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc). The profit is calculated as: *amount sold* - *amount bought* - *all gas costs*.
 
-Buying using the safe-buy contract has a fee of 1.5% of the amount paid if successful. Nothing is charged otherwise. 
+A 3.0% developer fee is paid on each sucesfull buy.
+ 
+An additional 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc). The profit is calculated as: *amount sold* - *amount bought* - *all gas costs*.
+
+Buying using the safe-buy contract has an extra fee of 1.5% of the amount paid if successful. Nothing is charged otherwise. 
 
 If you want to support further development of this sniper you can send a donation on Ethereum or BSC to: 
 
@@ -83,7 +85,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220618)
+## appsettings.json (v220627)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
