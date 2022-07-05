@@ -66,7 +66,9 @@ A 3.0% developer fee is paid on each sucesfull buy.
  
 An additional 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc). The profit is calculated as: *amount sold* - *amount bought* - *all gas costs*.
 
-Buying using the safe-buy contract has an extra fee of 1.5% of the amount paid if successful. Nothing is charged otherwise. 
+Buying using the safe-buy contract has an extra fee of 1.5% of the amount paid if successful. Nothing is charged otherwise.
+
+***If for privacy, costs or any other reasons you prefer not to pay per-transaction fees, get in touch and we can discuss providing you with a version free of fees, for a fixed price or subscription-based***
 
 If you want to support further development of this sniper you can send a donation on Ethereum or BSC to: 
 
