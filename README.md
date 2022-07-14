@@ -332,7 +332,7 @@ The available settings are:
 - MaxBuyTax: Used for the token audits. Maximum Buy Tax for sniping a token.
 - MaxSellTax: Similarly, maximum Sell Tax for sniping a token.
 - MaxTotalTax: Maximum total of taxes (buy+sell) for snipping a token.
-- MaxDrawdown: The estimated *drawdown* is the estimated loss caused by the price impacts, taxes and gas fees if the token was bought and sold immediately. The bought won't buy a token if the estimated drawdown is higher than this.
+- MaxDrawdown: The estimated *drawdown* is the estimated loss caused by the price impacts, taxes and gas fees if the token was bought and sold immediately. The bot won't buy a token if the estimated drawdown is higher than this.
 - MinLiquidityInBaseTokens: Minimum liquidity in the pair to allow buying a token (if *CheckLiquidity* is enabled), expressed as the equivalent worth of base tokens.
 - MaxLiquidityInBaseTokens: Maximum liquidity in the pair to allow buying a token (if *CheckLiquidity* is enabled), expressed as the equivalent worth of base tokens. Set to -1 for unlimited.
 - MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply of the token, in the pair to allow buying a token (if *CheckLiquidity* is enabled).
