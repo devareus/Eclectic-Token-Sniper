@@ -78,7 +78,7 @@ If you want to support further development of this sniper you can send a donatio
 ## How to run it
 Download the corresponding executable for your platform from the Releases section and place it in an empty folder. At the moment there are binaries available for Windows x64, Linux x64, Linux ARM (32 and 64 bits) and MacOS. If you need binaries for another platform, get in touch and I'll try to build one.
 
-Download the appsettings-template.json file, copy it as appsettings.json and put in the same folder as the executable.
+Download the appsettings-template.json file (or appsettings-telegram_template.json, a bit simplified and more straightforward version for just Telegram snipping), copy it as appsettings.json and put in the same folder as the executable.
 Edit it following the instructions below.
 
 Double click on the executable, or better, open a terminal/console and run it from it.
