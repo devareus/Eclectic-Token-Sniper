@@ -172,7 +172,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
    - ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping.
    - ParametersSet: The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified.
    - AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading.
-   - StopWatchListCheckingAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet.
+   - RemoveFromWatchListAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet.
 
 ### Customisable Transaction Sniper
 This feature allows you to buy or sell tokens when a transaction is found (either confirmed in the blockchain or in the mempool) that matches certain conditions. This can be used to mirror wallets, snipe a token when the token's developer call a certain method in a contract and probably many other uses. Once *EclecticSniperBlocks*, *EclecticSniperMempool* or both have been enabled, you can set a list of rules in *EclecticSniperConfiguration*. All the conditions in a rule have to be true for the rule to be triggered; usually you'll only set a few. The allowed settings are:
@@ -283,7 +283,7 @@ The bot can listen for Events in the blockchain for tokens to sell or buy, using
   The bot can obtain the address of the token to buy or sell using one of the following options:
 
 - Token: Predetermined fixed address.
-- TokenFromToAddress: Use the address of the triggering event.
+- TokenFromAddress: Use the address of the triggering event.
 - TokenFromTopicNo: 0, 1 or 2. Gets the token address from one of the event's topics.
 - ProcessTransaction: Use the customisable transaction rules for further analysis of the transaction that triggered the event. The combination of the Event Sniper + Transaction Sniper rules (but with AddLiquiditySniperBlocks off) allows the bot to only receive and analyse relevant transactions, instead of analysing every single mined transaction in every block, saving in both computing resources and node requests. But in many cases, you won't even need this, as you'll have enough information in the event and could use the previous options.
 
