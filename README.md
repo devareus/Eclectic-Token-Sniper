@@ -11,6 +11,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Polygon
 - Fantom Opera
 - Harmony ONE
+- Dogechain
 
 #### DEXs
 - UniswapV2
@@ -20,6 +21,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Biswap
 - BakerySwap
 - Traderjoexyz
+- Dogeswap
 
 The Honeypot Check functionality is available for the Binance Smart Chain, Polygon, Fantom and Avalanche (including their mainnets and testnets).
 
@@ -87,7 +89,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220627)
+## appsettings.json (v220818)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
