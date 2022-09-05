@@ -59,6 +59,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- Selling a token if the trailing stop doesn't change after a certain amount of time.
 	- Mempool monitoring to frontrun RemoveLiquidity transactions.
 - Simulation mode to test your sources and settings without risking any real funds.
+- Support for Polygon-edge gRPC TxPool (Dogechain)
 ***
 
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
@@ -89,7 +90,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220818)
+## appsettings.json (v220905)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -100,6 +101,8 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 ### Node
   - NodeAddressHttp: The RPC endpoint of the blockchain node that you'll connect to. You can use one of the official nodes, get a node from moralis.io or other providers or deploy your own node.
   - NodeAddressWss: For some snipping options you'll also need a websocket node endpoint. You can use the nariox node (not recomended, as they don't seem to support events filters), get one from moralis.io or other provider. Or if you're serious about snipping, particulary from the mempool, deploy and use your private node and run the bot as close as possible to the node for miminum latency.
+  - NodeAddressgRPC: The gRPC endpoint of the node. Required for Polygon-edge derived blockchains, like Dogechain.
+  - UsegRPCforMempool: Use gRPC TxPool instead of standard WebSocket Mempool. Set to true for Polygon-edge derived blockchains, like Dogechain. Otherwise, leave as false.
   - GetContractSourceUrl: The URL for downloading the tokens' contracts' source codes from a blockchain explorer.
   - NativeTokenSymbol: Symbol of the native token of the chain (BNB, MATIC, FTM, AVAX, Metis, ONE, etc). You can generally leave it blank and the bot will find it out automatically. But with some non-standard DEXs you might need to set it manually.
 
