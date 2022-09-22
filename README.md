@@ -1,4 +1,4 @@
-- Action: Must be *buy*, *sell* or *none* (require). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method). *none* can be used if you only want to use the rule for [Counters](#Counters).![ET sniper](logo1.jpeg)
+![ET sniper](logo1.jpeg)
 
 [Download the latest version here](https://github.com/devareus/Eclectic-Token-Sniper/releases)
 # Eclectic-Token-Sniper
