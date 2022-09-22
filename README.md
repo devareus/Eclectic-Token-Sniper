@@ -41,6 +41,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- From Telegram channels/groups, including private ones and obfuscated addresses.
 	- Customisable event rules.
 	- Customisable rules that let you trigger a buy depending on sender or receiver addresses of a transaction, its method signature, values in the input, etc.
+	- Dynamic activation of rules based on counters or flags.
 - Tokens auditing, including:
 	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage.
 	- Contract source verification and filtering by a configurable list of expressions.
