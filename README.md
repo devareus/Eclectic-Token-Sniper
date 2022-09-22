@@ -1,4 +1,4 @@
-![ET sniper](logo1.jpeg)
+- Action: Must be *buy*, *sell* or *none* (require). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method). *none* can be used if you only want to use the rule for [Counters](#Counters).![ET sniper](logo1.jpeg)
 
 [Download the latest version here](https://github.com/devareus/Eclectic-Token-Sniper/releases)
 # Eclectic-Token-Sniper
@@ -90,7 +90,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220905)
+## appsettings.json (v220922)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -167,6 +167,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 -  TelegramSilenceChatsList: Set to true if you don't want to see the list of Telegram channels or groups you're connected to, each time that you start the bot.
 -  TelegramListenerConfiguration: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
    - RuleName: A name for this rule, for your reference.
+   - Action: Can be *buy*, *sell* or *none* (the default value for Telegram rules is *buy*). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method). *none* can be used if you only want to use the rule for [Counters](#Counters).
    - ChatId: The *username* (the part after *t.me/* URLs, for public ones) or the numerical ID (for private ones) of the channel/group to listen to for this rule. You must already be a member of the channel/group. You can obtain these from the list shown when you start the Telegram sniper.
    - AdminsOnly: Enable it to only get addresses from messages of the admins of the chat.
    - IgnoreBots: Usually necessary if using the previous option, as bots are normally admins and you don't want to buy a token when a bot mentions a user that has a token address in his name.
@@ -183,7 +184,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 This feature allows you to buy or sell tokens when a transaction is found (either confirmed in the blockchain or in the mempool) that matches certain conditions. This can be used to mirror wallets, snipe a token when the token's developer call a certain method in a contract and probably many other uses. Once *EclecticSniperBlocks*, *EclecticSniperMempool* or both have been enabled, you can set a list of rules in *EclecticSniperConfiguration*. All the conditions in a rule have to be true for the rule to be triggered; usually you'll only set a few. The allowed settings are:
 
 - RuleName: A name for this rule, for your reference (required).
-- Action: Must be *buy* or *sell* (required). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method).
+- Action: Can be *buy*, *sell* or *none* (the default value, if not present, is *none*). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method). *none* can be used if you only want to use the rule for [Counters](#Counters).
 
 The bot can obtain the address of the token to buy or sell using one of the following options:
 
@@ -277,7 +278,7 @@ Quite similar to the previous one, this example tries to sell the token ***befor
 The bot can listen for Events in the blockchain for tokens to sell or buy, using some simple rules.
 
 - RuleName: A name for this rule, for your reference (required).
-- Action: Must be *buy* or *sell* (required). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method).
+- Action: Must be *buy*, *sell* or *none* (the default value, if not present, is *none*). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method). *none* can be used if you only want to use the rule for [Counters](#Counters).
 - AddressIs: The address of the contract emitting the event (optional).
 - Topic0Is, Topic1Is and Topic2Is: Topics filters. In most cases you'll set two: topic 0 with the event type and either topic 1 or 2 as the origin or destination addresses, but this will vary depending on the interface defined by the developer of the contract that emits the event.
 - TransactionFromIs: If present, the sender of the transaction to which the event belongs must be the specified address.
@@ -295,6 +296,50 @@ The bot can listen for Events in the blockchain for tokens to sell or buy, using
 And, as usual, you can also set:
 
 - ParametersSet, AddToWatchList and RemoveFromWatchListAfterMinutes: They work exactly as for the [Telegram Sniper](#telegram-sniper).
+
+
+### Counters
+
+You can declare counters that allow for dynamic activation of rules. Apart from for actual counting, these counters can be used as flags (set to 0 or 1, for example). Playing with several rules, counters and conditions quite simple (and elaborate!) strategies can be achieved. For example, you could buy a token only after a number of buys and sales have been done, sell a token after a number of sales have been observed, buy a token after a method has been called but only after we've seen the token announced in a telegram rule, buy or sell after seeing certain transactions or events in succession...
+
+There are two types of counters: global (which store one single common value) or per token (a separate value is stored for each token address). To declare counters, add a section like this:
+
+    "Counters": [
+      {
+        "Name": "counter1",
+        "Type": "global"
+      },
+      {
+        "Name": "counter2",
+        "Type": "perToken"
+      }
+    ],
+
+Now you can use those counters/flags on any Telegram, transaction or event rule. To adjust/set a counter add to the rule a section like the following:
+
+        "AdjustCounters": [
+          {
+            "Name": "counter1",
+            "Inc": 2
+          },
+          {
+            "Name": "counter2",
+            "Set": 1
+          }
+        ]
+
+The valid options for each counter are: Set, Inc or Dec.
+
+And to enable a rule only when some counter condition/s are satisfied:
+
+        "CountersConditions": [
+          {
+            "Name": "counter2",
+            "IsGreaterThanOrEqual": 10
+          }
+        ]
+
+The valid options for each counter are: Is, IsNot, IsLessThan, IsLessThanOrEqual, IsGreaterThan and IsGreaterThanOrEqual.
 
 ### Additional Settings
 
