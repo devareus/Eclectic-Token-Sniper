@@ -6,6 +6,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 
 #### Chains
 - Ethereum
+- EthereumPoW (ETHW)
 - BNB Smart Chain (former Binance Smart Chain)
 - Avalanche C-Chain
 - Polygon
@@ -23,7 +24,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Traderjoexyz
 - Dogeswap
 
-The Honeypot Check functionality is available for the Binance Smart Chain, Polygon, Fantom, Avalanche and Dogechain (including their mainnets and testnets).
+The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, Polygon, Fantom, Avalanche, Dogechain and EthereumPoW (including their mainnets and some testnets).
 
 The Safe-buy functionality is available for the Binance Smart Chain, Polygon and Fantom (mainnets and testnets).
 
@@ -91,7 +92,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220922)
+## appsettings.json (v220924)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -374,7 +375,7 @@ The available settings are:
 - AmountToSnipe: The default amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC).
 - AlwaysFindBestLiquidityPair: If enabled, the bot will always try to find the liquidity pair with the best price for the amount to buy, from the list provided above. If disabled, the bot will use the liquidity pair in the AddLiquidity transaction or PairCreated event or the base token; for other snipping methods, the best liquidity pair will still be selected (in future releases a predefined paired token or an address extracted from the triggering event or transaction will be configurable too).
 - AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately: 
-    - HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain. At the moment BSC, Polygon, Fantom, Avalanche and Dogechain are supported. If you need others, send us a request.
+    - HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain. At the moment Ethereum, EthereumPoW, BSC, Polygon, Fantom, Avalanche and Dogechain are supported. If you need others, send us a request.
     - CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list.
     - CheckLiquidity: Doesn't buy if the available liquidity doesn't fulfil the limits below.
 
