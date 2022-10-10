@@ -92,7 +92,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v220924)
+## appsettings.json (v221010)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -372,7 +372,8 @@ The available settings are:
    
 ### Buy settings
 - BuyEnabled: Enables or disables the buy of tokens for the sniper, rule or watched token using this set.
-- AmountToSnipe: The default amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC).
+- AmountToSnipe: The amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC).
+- BuySlippage: Maximum slippage for buying.
 - AlwaysFindBestLiquidityPair: If enabled, the bot will always try to find the liquidity pair with the best price for the amount to buy, from the list provided above. If disabled, the bot will use the liquidity pair in the AddLiquidity transaction or PairCreated event or the base token; for other snipping methods, the best liquidity pair will still be selected (in future releases a predefined paired token or an address extracted from the triggering event or transaction will be configurable too).
 - AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately: 
     - HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain. At the moment Ethereum, EthereumPoW, BSC, Polygon, Fantom, Avalanche and Dogechain are supported. If you need others, send us a request.
@@ -390,6 +391,8 @@ The available settings are:
 - MinLiquidityPercentage: Minimum liquidity, as a percentage of the total supply of the token, in the pair to allow buying a token (if *CheckLiquidity* is enabled).
 - MinNewAddedLiquidityPercentage: Minimum liquidity, as a percentage of the total supply of the token, added by the AddLiquidity transaction (if *CheckLiquidity* is enabled). This applies only to *PairCreatedEventSniper* and *AddLiquiditySniperBlocks*.
 - BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable.
+- BuyAndSellTest: Makes a small buy and sell just before buying the whole amount of the token, after all the audits (if enabled) has been passed, aborting the operation if the sell doesn't go through. This can be useful as a double check against honeypots (some scammers have learnt to avoid standard honeypot checks) or you want to use the bot in a blockchain where the honeypot check contract is not available (but contact me if you'd like this blockchain to be supported). Unlike audits, this test is done only once per token so as to prevent further spending; if it fails for any reason, the buy is cancelled, the token will be added to the "seen list" and, depending on your settings, ignored from this moment.
+- BuyAndSellTestAmount: The amount to use for the test (in the native token of the chain, BNB for example in the case of the BSC).
 - UseSafeBuyContract: Buy using the safe-buy contract. If enabled, a special contract will be used to buy that will check for honeypot, liquidity and tax&price impact limits in the same transaction, reverting it if it's not safe to buy the token.
 
 **Using this contract has an additional dev fee of 1.5% of the amount invested plus a higher cost in gas, as the contract will have to check liquidity and simulate a buy, an approval and a sell, before the effective buy, and all these tests will be done by the miner processing the transaction and not just a plain node like in the normal honeypot check (which doesn't consume gas), and the gas usage can be relatively high when buying a token with a complex transfer function.**
