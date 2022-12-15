@@ -13,6 +13,10 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Fantom Opera
 - Harmony ONE
 - Dogechain
+- EthereumPoW
+- Huobi ECO
+- Proof of Memes - POM
+- Exosama
 
 #### DEXs
 - UniswapV2
@@ -24,15 +28,16 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Traderjoexyz
 - Dogeswap
 
-The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, Polygon, Fantom, Avalanche, Dogechain and EthereumPoW (including their mainnets and some testnets).
+The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, Polygon, Fantom, Avalanche, Dogechain, EthereumPoW, Huobi ECO, Proof of Memes - POM and Exosama (including their mainnets and some testnets).
 
-The Safe-buy functionality is available for the Binance Smart Chain, Polygon and Fantom (mainnets and testnets).
+The Safe-buy functionality is available for the Binance Smart Chain, Polygon, Fantom and Dogechain (mainnets and testnets).
 
 I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a6602a2Ce7F00) enough native tokens of the corresponding blockchain so I can deploy the contracts and get in touch!
 
 ## Main features
 
 - Support for multiple chains, decentralised exchanges and liquidity pairs.
+- Support for EIP1559 gas fees in the blockchains that implement it.
 - Automatic selection of the liquidity pair with the best price when buying.
 - Able to monitor, buy and sell multiple tokens from different sources simultaneously.
 - Multiple methods for sniping tokens:
@@ -92,7 +97,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v221010)
+## appsettings.json (v221215)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -295,6 +300,10 @@ The bot can listen for Events in the blockchain for tokens to sell or buy, using
 - TokenFromTopicNo: 0, 1 or 2. Gets the token address from one of the event's topics.
 - ProcessTransaction: Use the customisable transaction rules for further analysis of the transaction that triggered the event. The combination of the Event Sniper + Transaction Sniper rules (but with AddLiquiditySniperBlocks off) allows the bot to only receive and analyse relevant transactions, instead of analysing every single mined transaction in every block, saving in both computing resources and node requests. But in many cases, you won't even need this, as you'll have enough information in the event and could use the previous options.
 
+- BuyPercentageOfTxValue: If set, the bot will calculate the amount to buy based on the value of the transaction that triggered the event, up to the maximum amount specified in the AmountToBuy setting. For instance, if the transaction's value was 1 BNB and this is set to 50:
+  - AmountToBuy is 0.75 -> 0.5 BNB will be bought
+  - AmountToBuy is 0.25 -> 0.25 BNB will be bought
+     
 And, as usual, you can also set:
 
 - ParametersSet, AddToWatchList and RemoveFromWatchListAfterMinutes: They work exactly as for the [Telegram Sniper](#telegram-sniper).
@@ -348,8 +357,6 @@ The valid options for each counter are: Is, IsNot, IsLessThan, IsLessThanOrEqual
 - LogParametersSets: If enabled computes and dumps the values of all the ParametersSets.
 - RunNodeLatencyTest: If enabled, the average latency with the node will be calculated and shown when the bot is started.
 - LogProcessedBlocks: If enabled, the bot will show the block number, timestamp and delay on reception of each received block (only if any type of block snipping is enabled).
-- CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled.
-- BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled.
 - DeadWallets: List of dead wallets used for the calculation of the percentage of the total supply as liquidity. It's recommended not to touch this.
 
 You can ignore the rest of the file, it's mainly log files configuration.
@@ -367,6 +374,9 @@ The available settings are:
   - BuyGasAmount: Maximum gas amount for buy transactions.
   - ApproveGasAmount: Maximum gas amount for approval transactions.
   - SellGasAmount: Maximum gas amount for sell transactions.
+  - BuyEip1559MaxPriorityFee: Sets the EIP1559 priority fee for buy transactions. Set to -1 to disable EIP1559.
+  - ApproveEip1559MaxPriorityFee: Sets the EIP1559 priority fee for approval transactions. Set to -1 to disable EIP1559.
+  - SellEip1559MaxPriorityFee: Sets the EIP1559 priority fee for sell transactions. Set to -1 to disable EIP1559.
   - EstimateGasOnBuy: If enabled, an estimation of gas is done before submitting buy transactions and checked against the maximum amount above. This has the advantage of not wasting gas in aborted transactions if these are going to fail due to being out-of-gas, but the disadvantage of making the snip operation slower. You can leave it off if using the HoneypotCheck functionality, as the gas limits are already checked by it.
   - EstimateGasOnSell: Similar to the above, but for sell transactions.
    
@@ -393,6 +403,9 @@ The available settings are:
 - BuyDelaySeconds: Waits the indicated amount of seconds before buying a token. This is usually used to avoid antibots measures, but the Honeypot Check method is more reliable.
 - BuyAndSellTest: Makes a small buy and sell just before buying the whole amount of the token, after all the audits (if enabled) have been passed, aborting the operation if the sell doesn't go through. This can be useful as a double check against honeypots (some scammers have learnt to avoid standard honeypot checks) or you want to use the bot in a blockchain where the honeypot check contract is not available (but contact me if you'd like this blockchain to be supported). Unlike audits, this test is done only once per token so as to prevent further spending; if it fails for any reason, the buy is cancelled, the token will be added to the "seen list" and, depending on your settings, ignored from this moment.
 - BuyAndSellTestAmount: The amount to use for the test (in the native token of the chain, BNB for example in the case of the BSC).
+- CheckSeen: If enabled, it will check again a token that has been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled.
+- BuySeen: If enabled, it allows buying a token again, even if it's been previously bought or discarded, if the sniper finds it again. It's recommended to leave it disabled.
+- BuyOwned: If enabled, it allows buying a token again, even if it's currently owned, if the sniper finds it again. It's recommended to leave it disabled.
 - UseSafeBuyContract: Buy using the safe-buy contract. If enabled, a special contract will be used to buy that will check for honeypot, liquidity and tax&price impact limits in the same transaction, reverting it if it's not safe to buy the token.
 
 **Using this contract has an additional dev fee of 1.5% of the amount invested plus a higher cost in gas, as the contract will have to check liquidity and simulate a buy, an approval and a sell, before the effective buy, and all these tests will be done by the miner processing the transaction and not just a plain node like in the normal honeypot check (which doesn't consume gas), and the gas usage can be relatively high when buying a token with a complex transfer function.**
