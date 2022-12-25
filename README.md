@@ -52,6 +52,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- Very quick and efficient in-house and in-chain honeypot check, that checks if a token can be approved and sold, with configurable limits for buy and sell taxes and gas usage.
 	- Contract source verification and filtering by a configurable list of expressions.
 	- Minimum and maximum liquidity amount and minimum percentage.
+	- Running external programs for additional checks.
 - Optional buy using a safety contract that checks for honeypot, liquidity and drawdown within the same buy transaction and reverts it back if the token doesn't fulfil the requirements.
 - Whitelisting of token addresses.
 - Blacklisting of addresses, symbols and names.
@@ -67,6 +68,7 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 	- Mempool monitoring to frontrun RemoveLiquidity transactions.
 - Simulation mode to test your sources and settings without risking any real funds.
 - Support for Polygon-edge gRPC TxPool (Dogechain)
+
 ***
 
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
@@ -97,7 +99,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v221215)
+## appsettings.json (v221225)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -122,6 +124,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
   - TransactionRevertTimeSeconds: Maximum time for a transaction to be confirmed before it's automatically cancelled.
   - MonitorPricesEverySeconds: When 0, it disables the monitoring of the prices of the tokens the sniper has bought. If set to a number, the sniper will check the prices regularly at the set interval (in seconds).
   - WatchTokensInterval: Indicates the interval, in seconds, at which the tokens in the watched list will be checked for sniping. Each time the interval elapses a new token from the list will be checked, starting again for the beginning once the list is exhausted.
+
 ### Simulation mode
 
   - SimulationMode: If enabled, the bot will run in simulation mode, without submitting any real transactions. This can be useful to see if your sources or settings can make consistent profits, without having to risk your real money while you adjust them. Mind that some things, like how other transactions in the current block will impact prices, can't be simulated so the simulated results could differ significantly from what would have happened in reality. Simulations will be more accurate on blockchains where the HoneypotCheck contract is deployed and if you have a real balance in your wallet of at least *AmountToSnipe*.
@@ -389,6 +392,7 @@ The available settings are:
     - HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain. At the moment Ethereum, EthereumPoW, BSC, Polygon, Fantom, Avalanche and Dogechain are supported. If you need others, send us a request.
     - CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list.
     - CheckLiquidity: Doesn't buy if the available liquidity doesn't fulfil the limits below.
+ 	- ExternalProgramCheck: Runs an external program for additional checks ([see below](#running-external-programs-for-additional-checks)).
 
 **Mind that the tokens owners can change the taxes at any time! That a token passes an audit is not guarantee that you'll be able to sell the token later or you won't be charged higher taxes. And obviously, it doesn't guarantee that the owner won't do a rug pull and remove all the liquidity from the DEX at any some point.**
 
@@ -421,6 +425,46 @@ The following settings let you fine tune the safe-buy feature:
 - SafeBuyCheckMaxLiquidity: Doesn't buy if the liquidity is higher than *MaxLiquidityAmount* above.
 - SafeBuyCheckMaxTaxAndPriceImpact: Doesn't buy if the estimated loss due to taxes and price impact is higher than the parameter below.
 - SafeBuyMaxTaxAndPriceImpact: Maximum estimated loss due to taxes and price impact. It's similar to the *MaxDrawdown* setting above, but doesn't consider the gas costs, as you're going to pay most of them anyway by running the buy&sell simulation within the buy transaction and calculating them would only increase the gas costs of using the contract for buying with very little gas saving if reverting the transaction because of it.
+
+#### Running external programs for additional checks
+
+Optionally, you can run an external program for additional audit options. For example, you could use curl or write a small script or use any other script or program provided by any 3rd party.
+
+The available settings are the following:
+
+- ExternalProgramCheck: Set to true to enable this feature.
+- ExternalProgramPath: The name or path of the program to run.
+- ExternalProgramArguments: The arguments to pass to the program, where {0} is replaced by the token address.
+- ExternalProgramDefaultResult: The default result. This will usually be *false* for Success conditions and *true* for Fail conditions.
+
+There are 4 available conditions that are evaluated in this exact order, although you'll usually only use one of them:
+
+- ExternalProgramFailExitCode: Fails the audit if the exit code of the program matches this integer value.
+- ExternalProgramFailOutput: Fails the audit if the console output of the program contains this string of characters.
+- ExternalProgramSuccessExitCode: Fails the audit if the console output of the program contains this string of characters.
+
+And you can enable or disable the following logs, which can be very useful while debugging your settings:
+
+- ExternalProgramLogCommand
+- ExternalProgramLogExitCode
+- ExternalProgramLogOutput
+
+A simple example of what you could do:
+
+        "ExternalProgramCheck": true,
+        "ExternalProgramPath": "curl",
+        "ExternalProgramArguments": "https://some3rpartysite.com/api?chain=bsc&address={0}",
+        "ExternalProgramFailExitCode": 0,
+
+A more complex one:
+
+        "ExternalProgramCheck": true,
+        "ExternalProgramPath": "bash",
+        "ExternalProgramArguments": "-c \"curl 'https://some3rpartysite.com/api/audit?chain=bsc&address={0}' | grep '\\\"blacklist\\\":false' | grep '\\\"taxModifiable\\\":false'",
+        "ExternalProgramDefaultResult": false,
+        "ExternalProgramSuccessExitCode": 0,
+
+(although I'd recommend writing a separate shell script to avoid the pain of having to escape so many quotes).
 
 ### Sell settings
 
