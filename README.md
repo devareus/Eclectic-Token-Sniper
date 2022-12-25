@@ -453,14 +453,14 @@ A simple example of what you could do:
 
         "ExternalProgramCheck": true,
         "ExternalProgramPath": "curl",
-        "ExternalProgramArguments": "https://some3rpartysite.com/api?chain=bsc&address={0}",
+        "ExternalProgramArguments": "https://some3rdpartysite.com/api?chain=bsc&address={0}",
         "ExternalProgramFailExitCode": 0,
 
 A more complex one:
 
         "ExternalProgramCheck": true,
         "ExternalProgramPath": "bash",
-        "ExternalProgramArguments": "-c \"curl 'https://some3rpartysite.com/api/audit?chain=bsc&address={0}' | grep '\\\"blacklist\\\":false' | grep '\\\"taxModifiable\\\":false'",
+        "ExternalProgramArguments": "-c \"curl 'https://some3rdpartysite.com/api/audit?chain=bsc&address={0}' | grep '\\\"blacklist\\\":false' | grep '\\\"taxModifiable\\\":false'",
         "ExternalProgramDefaultResult": false,
         "ExternalProgramSuccessExitCode": 0,
 
