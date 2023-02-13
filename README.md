@@ -17,6 +17,8 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Huobi ECO
 - Proof of Memes - POM
 - Exosama
+- Flare
+- Arbitrum One
 
 #### DEXs
 - UniswapV2
@@ -40,11 +42,12 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 - Support for EIP1559 gas fees in the blockchains that implement it.
 - Automatic selection of the liquidity pair with the best price when buying.
 - Able to monitor, buy and sell multiple tokens from different sources simultaneously.
+- Can snipe directly from token contract addresses as well as from liquidity pair addresses
 - Multiple methods for sniping tokens:
 	- From a list of token addresses to watch.
 	- From PairCreated events.
 	- From AddLiquidity transactions from confirmed blocks or mempool.
-	- From Telegram channels/groups, including private ones and obfuscated addresses.
+	- From Telegram channels/groups or private messages, including private ones and obfuscated addresses.
 	- Customisable event rules.
 	- Customisable rules that let you trigger a buy depending on sender or receiver addresses of a transaction, its method signature, values in the input, etc.
 	- Dynamic activation of rules based on counters or flags.
@@ -99,7 +102,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v221225)
+## appsettings.json (v230213)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -135,7 +138,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 ### Snipers
   - WatchedTokensSniper: Enables or disables the watch list. See [Watch List](#watch-list) section below.
-  - TelegramSniper: If enabled, the sniper will listed on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources.
+  - TelegramSniper: If enabled, the sniper will listen on the configured Telegram channels, filtering by keywords and sniping token addresses for it. Use only with reliable sources.
   - PairCreatedEventSniper: If enabled, the sniper will listen for PairCreated events for new tokens to snipe.
   - AddLiquiditySniperBlocks: If enabled, the sniper will listen for all AddLiquidity transactions on the DEX for tokens to snipe. This method is not recommended unless you limit buys to the white list, or you'll end buying lots of old tokens.
   - AddLiquiditySniperMempool: If enabled, the sniper will monitor the mempool for AddLiquidity transactions to try to buy in the same block or the following adjusting the buy gas price accordingly.
@@ -174,11 +177,11 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
 
 *To obtain your Telegram API credentials follow the instructions here: [https://core.telegram.org/api/obtaining_api_id](https://core.telegram.org/api/obtaining_api_id). **Use at your own risk as whether Telegram allows this kind of use is a bit of a grey area and they could ban you forever from their service***
 
--  TelegramSilenceChatsList: Set to true if you don't want to see the list of Telegram channels or groups you're connected to, each time that you start the bot.
--  TelegramListenerConfiguration: This a list of rules for sniping tokens from Telegram channels. For each rule you can set:
+-  TelegramSilenceChatsList: Set to true if you don't want to see the list of Telegram channels, groups or converstations you're connected to, each time that you start the bot.
+-  TelegramListenerConfiguration: This a list of rules for sniping tokens from Telegram. For each rule you can set:
    - RuleName: A name for this rule, for your reference.
    - Action: Can be *buy*, *sell* or *none* (the default value for Telegram rules is *buy*). To sell a token it must be present in the tokens-current.json list at moment of selling (usually bought previously by another rule or snipping method). *none* can be used if you only want to use the rule for [Counters](#Counters).
-   - ChatId: The *username* (the part after *t.me/* URLs, for public ones) or the numerical ID (for private ones) of the channel/group to listen to for this rule. You must already be a member of the channel/group. You can obtain these from the list shown when you start the Telegram sniper.
+   - ChatId: The *username* (the part after *t.me/* URLs, for public ones) or the numerical ID (for private ones) of the chat to listen to for this rule. You must already be a member of the channel/group or have a private conversation opened. You can obtain these from the list shown when you start the Telegram sniper.
    - AdminsOnly: Enable it to only get addresses from messages of the admins of the chat.
    - IgnoreBots: Usually necessary if using the previous option, as bots are normally admins and you don't want to buy a token when a bot mentions a user that has a token address in his name.
    - SolveMathExpressions: Enable to solve math expressions in the messages when searching for contract addresses. For example, 0xae13d(4+5)89daC2f0dEbFf460aC112a837C89BAa7cd would be solved into 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd.
@@ -453,14 +456,14 @@ A simple example of what you could do:
 
         "ExternalProgramCheck": true,
         "ExternalProgramPath": "curl",
-        "ExternalProgramArguments": "https://some3rdpartysite.com/api?chain=bsc&address={0}",
+        "ExternalProgramArguments": "https://some3rpartysite.com/api?chain=bsc&address={0}",
         "ExternalProgramFailExitCode": 0,
 
 A more complex one:
 
         "ExternalProgramCheck": true,
         "ExternalProgramPath": "bash",
-        "ExternalProgramArguments": "-c \"curl 'https://some3rdpartysite.com/api/audit?chain=bsc&address={0}' | grep '\\\"blacklist\\\":false' | grep '\\\"taxModifiable\\\":false'",
+        "ExternalProgramArguments": "-c \"curl 'https://some3rpartysite.com/api/audit?chain=bsc&address={0}' | grep '\\\"blacklist\\\":false' | grep '\\\"taxModifiable\\\":false'",
         "ExternalProgramDefaultResult": false,
         "ExternalProgramSuccessExitCode": 0,
 
@@ -484,9 +487,11 @@ A more complex one:
 - TrailingStopThreshold: How much the price has to increase above the previous stop loss for this to be changed.
 - TrailingStopDistance: Distance at which the new stop loss will be set.
 - SellSlippage: Maximum slippage set during selling.
+- DontSellIfProfitBelow: If set, the bot won't sell a token if the current profit is below the configured percentage. This can be useful on blockchains with high gas costs, where you could end spending more on gas than what you'd get from selling a token with very little value left (for example, with -70 the bot won't sell if the token has lost 70% or more of its value since it was bought).
 - DontSellBeforeMinutes: Prevents selling a token, even if the stop loss is touched, for the first few minutes after buying a token. The trailing stop (if enabled) won't be active during this time either. This can be used to prevent being taken out of the market by the initial volatility after a token is launched. Use at your own risk!
 - SellAfterMinutes: Sells tokens after the amount of minutes indicated in this setting, no matter if any of the other conditions above is fulfilled or not. Set to -1 to disable.
 - SellIfTrailingStopNotChangedInMinutes: Sells tokens if the trailing stop hasn't changed after the amount of minutes indicated in this setting, no matter if any of the other conditions above is fulfilled or not. Set to -1 to disable.
+- ApplyGasTaxToProfitEstimations: If disabled (enabled by default) it won't deduct any gas fees or taxes from profit estimations
 - ApplySellGasTaxToProfitEstimations: If enabled, an estimation of sell tax and approval and sell gas is deducted from the profit estimation used for the take profit, stop loss and trailing stop. This option requires HoneypotCheck support for the blockchain and exchange. At the moment BSC and Polygon are supported. If you need others, send us a request.
 - RecheckSellGasTaxMinutes: Sets the frequency for updating the tax and gas estimations used for the above.
 - ApprovalMethod: Defines when the approval to sell the tokens will be done. It can be set to one of the following:
@@ -514,8 +519,5 @@ The list of watched tokens is stored in a file named *watched-tokens.json* (or *
 	
 The tokens will be automatically removed from the list by the sniper when they're bought (or a buy failed).
 
-## Plans for the next releases
-- Add support for selling previously owned tokens (although at the moment one can add a token manually to the tokens-current.json list and have the bot to monitor and sell it, it'd be best if the bot could add a token to the list by just asking a few simple questions).
-- Graphical User Interface.
-- Add support for non EVM-compatible blockchains.
-- Open to suggestions.
+## Manual sell
+You can instruct the bot to sell all the tokens or one token in particular by pressing the key *Z* in your keyboard (be patient, the menu might take a few seconds to show up, as the keys are only checked once per price monitoring cycle (which happens every *MonitorPricesEverySeconds*). The bot will show a list of currenly hold tokens. Enter a number to sell one token in particular, A for selling all the tokens or N to cancel and resume price monitoring. For manual sells, the only condition that is checked is *DontSellIfProfitBelow* if it's been set.
