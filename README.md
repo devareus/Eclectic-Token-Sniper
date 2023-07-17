@@ -31,7 +31,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Traderjoexyz
 - Dogeswap
 
-The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, Polygon, Fantom, Avalanche, Dogechain, EthereumPoW, Huobi ECO, Proof of Memes - POM, Exosama and CoreDAO (including their mainnets and some testnets).
+The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, Polygon, Fantom, Avalanche, Dogechain, EthereumPoW, Huobi ECO, Proof of Memes - POM, Exosama, CoreDAO, BeanEco SmartChain, PulseChain, Flare, Base (Coinbase) and Arbitrum One (including their mainnets and some testnets).
 
 The Safe-buy functionality is available for the Binance Smart Chain, Polygon, Fantom and Dogechain (mainnets and testnets).
 
@@ -78,10 +78,8 @@ I can add support for others on request. Send me (0xa9f5B4Fd93ddA4eb247CC1cC726a
 For bug reports, feedback or help, use the Issues functionality here on Github, send an email to [devareus@protonmail.com](devareus@protonmail.com) or join the
 Telegram channel at [http://t.me/EclecticTokenSniper](http://t.me/EclecticTokenSniper).
 
-A 3.0% developer fee is paid on each sucesfull buy.
+A 1.5% developer fee is paid on each sucesfull buy. No developer fees are paid when selling.
  
-An additional 7.5% developer fee is paid on all profits above 0.01 base tokens (BNB in the BSC, MATIC on Polygon, etc). The profit is calculated as: *amount sold* - *amount bought* - *all gas costs*.
-
 Buying using the safe-buy contract has an extra fee of 1.5% of the amount paid if successful. Nothing is charged otherwise.
 
 ***If for privacy, costs or any other reasons you prefer not to pay per-transaction fees, get in touch and we can discuss providing you with a version free of fees, for a fixed price or subscription-based***
@@ -103,7 +101,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v230228)
+## appsettings.json (v230717)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -299,6 +297,7 @@ The bot can listen for Events in the blockchain for tokens to sell or buy, using
 - TransactionToIs: If present, the destination of the transaction to which the event belongs must be the specified address (usually a DEX or Token contract).
 - TransactionFromIsIn: If present, the sender of the transaction to which the event belongs must be one of the addresses in the provided list.
 - TransactionToIsIn: If present, the sender of the transaction to which the event belongs must be one of the addresses in the provided list.
+- MinTxValue: If present, ignores transactions below this value.
 
   The bot can obtain the address of the token to buy or sell using one of the following options:
 
@@ -310,7 +309,8 @@ The bot can listen for Events in the blockchain for tokens to sell or buy, using
 - BuyPercentageOfTxValue: If set, the bot will calculate the amount to buy based on the value of the transaction that triggered the event, up to the maximum amount specified in the AmountToBuy setting. For instance, if the transaction's value was 1 BNB and this is set to 50:
   - AmountToBuy is 0.75 -> 0.5 BNB will be bought
   - AmountToBuy is 0.25 -> 0.25 BNB will be bought
-     
+- MirrorPercentageSoldByAddress: If set, the bot will sell the same percentage of the balance of tokens of the mirrored wallet that were sold.
+       
 And, as usual, you can also set:
 
 - ParametersSet, AddToWatchList and RemoveFromWatchListAfterMinutes: They work exactly as for the [Telegram Sniper](#telegram-sniper).
@@ -390,12 +390,15 @@ The available settings are:
 ### Buy settings
 - BuyEnabled: Enables or disables the buy of tokens for the sniper, rule or watched token using this set.
 - AmountToSnipe: The amount to buy of each snipped token (in the native token of the chain, BNB for example in the case of the BSC).
+- FindMaxAmountCanBuy: If enabled, the bot will try to estimate the maximum amount (up to AmountToSnipe) that it can buy of the token. This option is helpful for when the tokens' devs set a maximum amount of tokens that can be bought.
+- FindMaxAmountCanBuySteps: Number of steps used for the max amount estimation. The higher the number, the more precise the estimation will be, but at the cost of requiring more requests with the node and taking longer. The default if this option is omitted is 5.
 - BuySlippage: Maximum slippage for buying.
 - AlwaysFindBestLiquidityPair: If enabled, the bot will always try to find the liquidity pair with the best price for the amount to buy, from the list provided above. If disabled, the bot will use the liquidity pair in the AddLiquidity transaction or PairCreated event or the base token; for other snipping methods, the best liquidity pair will still be selected (in future releases a predefined paired token or an address extracted from the triggering event or transaction will be configurable too).
 - AuditTokens: Enables the audit of tokens before buying. You can enable or disable the followings checks separately: 
-    - HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain. At the moment Ethereum, EthereumPoW, BSC, Polygon, Fantom, Avalanche and Dogechain are supported. If you need others, send us a request.
-    - CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list.
-    - CheckLiquidity: Doesn't buy if the available liquidity doesn't fulfil the limits below.
+  - HoneypotCheckEnabled: Using an in-house and in-chain solution checks if a token can be bought, approved and sold before buying. It can also check for maximum taxes, gas and drawdowns, using the limits set below. This option requires HoneypotCheck support for the blockchain. At the moment Ethereum, EthereumPoW, BSC, Polygon, Fantom, Avalanche and Dogechain are supported. If you need others, send us a request.
+  - SimpleBuyCheck: Checks if it's possible to buy the token. This check is redundant if using the HoneypotCheck, but it might provide more details about the reason why buying is not possible.
+  - CheckContract: Only buys if the token's contract is verified on BSCScan and it doesn't contain any of the expressions in the red flags list.
+  - CheckLiquidity: Doesn't buy if the available liquidity doesn't fulfil the limits below.
  	- ExternalProgramCheck: Runs an external program for additional checks ([see below](#running-external-programs-for-additional-checks)).
 
 **Mind that the tokens owners can change the taxes at any time! That a token passes an audit is not guarantee that you'll be able to sell the token later or you won't be charged higher taxes. And obviously, it doesn't guarantee that the owner won't do a rug pull and remove all the liquidity from the DEX at any some point.**
@@ -503,7 +506,8 @@ A more complex one:
 
 For (mempool) emergency sells the *always* method will be used, unless the token has been pre-approved.
 
-- 	WaitForApproval: If enabled, waits for the confirmation of the approve transaction before submitting the sell transaction. It's recommended to leave it disabled, unless for some estrange reason you're having frequent issues with approvals. For emergency sells approvals are never waited for, even if this option is set, as the point is to try to frontrun the liquidity removal
+- WaitForApproval: If enabled, waits for the confirmation of the approve transaction before submitting the sell transaction. It's recommended to leave it disabled, unless for some estrange reason you're having frequent issues with approvals. For emergency sells approvals are never waited for, even if this option is set, as the point is to try to frontrun the liquidity removal.
+- PercentageToSell: If set, sell only a percentage of the current balance of tokens. NOTE: This feature was a feature quickly added after a user requested it. It works, but the profit/loss reported will be incorrect until I add this factor to the calculation.
 
 **Each bought token remembers the name of the set used when it was bought, even after restarting the bot; be careful if you change the sell settings of a parameters set for which there are still bought tokens being monitored as this will affect them. If you don't want to affect the sell parameters of already owned tokens, create and use a new set for new buys.**
 
