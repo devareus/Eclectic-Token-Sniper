@@ -20,6 +20,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Flare
 - Arbitrum One
 - CoreDAO
+- Base (Coinbase)
 
 #### DEXs
 - UniswapV2
