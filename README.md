@@ -8,6 +8,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Ethereum
 - EthereumPoW (ETHW)
 - BNB Smart Chain (former Binance Smart Chain)
+- opBNB
 - Avalanche C-Chain
 - Polygon
 - Fantom Opera
@@ -33,7 +34,7 @@ Eclectic Token Sniper (ETSniper) is a versatile token sniper for the blockchain.
 - Traderjoexyz
 - Dogeswap
 
-The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, Polygon, Fantom, Avalanche, Dogechain, EthereumPoW, Huobi ECO, Proof of Memes - POM, Exosama, CoreDAO, BeanEco SmartChain, PulseChain, Flare, Base (Coinbase), Arbitrum One and Linea (including their mainnets and some testnets).
+The Honeypot Check functionality is available for the Ethereum, Binance Smart Chain, opBNB, Polygon, Fantom, Avalanche, Dogechain, EthereumPoW, Huobi ECO, Proof of Memes - POM, Exosama, CoreDAO, BeanEco SmartChain, PulseChain, Flare, Base (Coinbase), Arbitrum One and Linea (including their mainnets and some testnets).
 
 The Safe-buy functionality is available for the Binance Smart Chain, Polygon, Fantom and Dogechain (mainnets and testnets).
 
@@ -103,7 +104,7 @@ You can quit the sniper by pressing Ctrl+C. The status of the sniper is saved ea
 
 If you want to run the sniper on different chains, exchanges or LiquidityPairAddress, it's recommended to run each from a different folder.
 
-## appsettings.json (v230719)
+## appsettings.json (v230818)
 
 NOTE: The JSON standard doesn't allow comments, but the library I use does, so I used them to add clarity to the appsettings template. Feel free to remove them if they bother you.
 
@@ -190,6 +191,7 @@ NOTE: The JSON standard doesn't allow comments, but the library I use does, so I
    - UseAddressNumber: Indicates which address within the message to snip. 1 for the first one, 2 for the second, etc. If not present or set to 0, all the addresses present in a rule-matching message will be sniped. Negative numbers to start counting from the bottom of the message (ie, -1 for last address, -2 for the 2nd last, etc)
    - RequiredText: All these words or expressions need to be present in a message for it to be parsed in search of a token address.
    - ExcludeText: If any of these words or expressions is present in a message, it will be ignored and not used for snipping.
+   - EnableRegexPatterns: Set to true (default is false) to use regular expressions in RequiredText and ExcludeText.
    - ParametersSet: The set of parameters for this rule (see the [Parameters Sets](#parameters-sets) section above). The default one will be used if none is specified.
    - AddToWatchList (optional): If *true* the token address will be added to the watch list if the buy fails when the announcement is received. This is useful if a token is announced before is available for trading.
    - RemoveFromWatchListAfterMinutes (optional): If *AddToWatchList* is enabled, this setting allows you to set a number of minutes after which the token will be removed from the watch list if it not bought yet.
